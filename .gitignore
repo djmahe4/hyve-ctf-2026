@@ -1,0 +1,31 @@
+# CTFd data
+ctfd/data/
+*.db
+*.sqlite
+
+# Logs
+*.log
+logs/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+
+# Docker
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Challenge files (generated)
+challenges/stego/*.jpeg
+challenges/network/*.pcap
+challenges/osint/*.jpg
+
+# Backups
+*.tar.gz
+backup_*/

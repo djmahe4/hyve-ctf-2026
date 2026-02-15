@@ -8,7 +8,6 @@ RUN pip install --no-cache-dir flask
 # Copy application files
 COPY app.py .
 COPY init_db.py .
-COPY templates ./templates
 
 # Initialize database
 RUN python init_db.py

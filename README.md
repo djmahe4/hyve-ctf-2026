@@ -31,14 +31,24 @@ Hivye CTF 2026 is a beginner to intermediate level CTF competition designed to t
 git clone https://github.com/djmahe4/hyve-ctf-2026.git
 cd hyve-ctf-2026
 
-# Run the setup script (Automates venv and requirements.txt)
+# Run the automated setup script
+# This will:
+#  - Create a virtual environment and install Python dependencies
+#  - Check for Docker and Docker Compose
+#  - Start CTFd and all challenge services
 chmod +x setup.sh
 ./setup.sh
+```
 
-# Or start manually
-uv venv
-source .venv/bin/activate # or .venv/Scripts/activate for Windows
-uv pip install -r requirements.txt
+**Or manually:**
+
+```bash
+# 1. Install Python dependencies
+python3 -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+
+# 2. Start services
 ./start.sh
 ```
 

@@ -20,7 +20,7 @@ services:
       - ./data/CTFd/logs:/var/log/CTFd
       - ./data/CTFd/uploads:/var/uploads
       # Plugin mount disabled due to CTFd version compatibility
-      - ./import/plugins:/opt/CTFd/CTFd/plugins:ro
+      - ./import/plugins/DynamicXORKey:/opt/CTFd/CTFd/plugins/DynamicXORKey:ro
       - ./import:/opt/CTFd/import:ro
     depends_on:
       - db

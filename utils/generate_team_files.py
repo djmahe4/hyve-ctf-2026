@@ -31,15 +31,150 @@ def create_team_directory(team_id):
     return team_dir
 
 
+import random
+import time
+
+# Dynamic Landmarks List (Wikimedia Commons URLs - reliable and open)
+LANDMARKS = [
+    {
+        "name": "Eiffel Tower",
+        "keywords": ["PARIS", "FRANCE", "EIFFELTOWER"],
+        "lat": 48.8584, "lon": 2.2945, "lat_ref": "N", "lon_ref": "E",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/8/85/Tour_Eiffel_Wikimedia_Commons_(cropped).jpg"
+    },
+    {
+        "name": "Big Ben",
+        "keywords": ["LONDON", "UK", "BIGBEN"],
+        "lat": 51.5007, "lon": 0.1246, "lat_ref": "N", "lon_ref": "W",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Palace_of_Westminster_from_the_dome_on_Methodist_Central_Hall.jpg/800px-Palace_of_Westminster_from_the_dome_on_Methodist_Central_Hall.jpg"
+    },
+    {
+        "name": "Colosseum",
+        "keywords": ["ROME", "ITALY", "COLOSSEUM"],
+        "lat": 41.8902, "lon": 12.4922, "lat_ref": "N", "lon_ref": "E",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Colosseo_2020.jpg/800px-Colosseo_2020.jpg"
+    },
+    {
+        "name": "Statue of Liberty",
+        "keywords": ["NEWYORK", "USA", "STATUEOFLIBERTY"],
+        "lat": 40.6892, "lon": 74.0445, "lat_ref": "N", "lon_ref": "W", # Should be correct sign
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Statue_of_Liberty_7.jpg/800px-Statue_of_Liberty_7.jpg"
+    },
+    {
+        "name": "Taj Mahal",
+        "keywords": ["AGRA", "INDIA", "TAJMAHAL"],
+        "lat": 27.1751, "lon": 78.0421, "lat_ref": "N", "lon_ref": "E",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Taj_Mahal_(Edited).jpeg/800px-Taj_Mahal_(Edited).jpeg"
+    },
+]
+
+def generate_osint_challenge(team_id, team_dir):
+    """Generate dynamic OSINT challenge: Download image -> Embed GPS -> Embed Flag (Stego)"""
+    print(f"[*] Generating OSINT challenge for Team {team_id}")
+    
+    # 1. Select Landmark (Deterministic based on team_id)
+    landmark = LANDMARKS[team_id % len(LANDMARKS)]
+    
+    # 2. Generate Flag
+    # Flag format: HYVE_CTF{CITY_COUNTRY_LANDMARK_HASH}
+    # We construct the base prompt from keywords
+    base_prompt = "_".join(landmark["keywords"])
+    flag = get_flag(base_prompt, str(team_id))
+    
+    # 3. Download Image (Failover logic)
+    output_file = team_dir / "osint" / "mystery_location.jpg"
+    
+    # Try downloading the selected landmark image first
+    download_success = False
+    
+    # Create a list of candidates starting with the chosen one
+    candidates = [landmark] + [l for l in LANDMARKS if l != landmark]
+    
+    final_landmark = None
+    
+    for candidate in candidates:
+        print(f"  > Attempting download: {candidate['name']}")
+        try:
+            # -U "Mozilla/5.0" to avoid some 403s
+            cmd = ['wget', '-q', '-U', 'Mozilla/5.0', '-O', str(output_file), candidate['url']]
+            result = subprocess.run(cmd)
+            
+            if result.returncode == 0 and output_file.exists() and output_file.stat().st_size > 0:
+                print(f"  ✓ Downloaded image for {candidate['name']}")
+                final_landmark = candidate
+                download_success = True
+                break
+            else:
+                print(f"  ✗ Failed to download {candidate['name']} (Size: {output_file.stat().st_size if output_file.exists() else 0})")
+        except Exception as e:
+            print(f"  ✗ Exception downloading {candidate['name']}: {e}")
+    
+    if not download_success:
+        print(f"  [!] CRITICAL: Could not download any landmark image for Team {team_id}")
+        return # Skip further processing to avoid crashes
+    
+    # If we switched landmarks due to failover, regenerate flag to match the image!
+    if final_landmark != landmark:
+        print(f"  ! Switched landmark to {final_landmark['name']}")
+        base_prompt = "_".join(final_landmark["keywords"])
+        flag = get_flag(base_prompt, str(team_id))
+        
+    landmark = final_landmark
+    
+    # 4. Embed GPS Metadata (Exiftool)
+    # Ensure latitude/longitude are positive for exiftool and Ref handles direction
+    # Exiftool expects positive values + Ref
+    lat_val = abs(landmark["lat"])
+    lon_val = abs(landmark["lon"])
+    
+    exif_cmd = [
+        'exiftool',
+        f'-GPSLatitude={lat_val}',
+        f'-GPSLongitude={lon_val}',
+        f'-GPSLatitudeRef={landmark["lat_ref"]}',
+        f'-GPSLongitudeRef={landmark["lon_ref"]}',
+        '-overwrite_original',
+        str(output_file)
+    ]
+    
+    try:
+        subprocess.run(exif_cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        print(f"  ✓ Embedded GPS: {lat_val}°{landmark['lat_ref']}, {lon_val}°{landmark['lon_ref']}")
+    except subprocess.CalledProcessError as e:
+        print(f"  ✗ Failed to embed GPS: {e.stderr.decode()}")
+        return
+
+    # 5. Embed Flag using Steghide
+    # Password format: {lat}{lon} (up to 2 decimal places, e.g. 48.862.29)
+    # Note: We use the *original* values from config to ensure precision match
+    password = f"{lat_val:.2f}{lon_val:.2f}"
+    
+    # Write flag to temp file
+    flag_file = team_dir / "osint" / "flag.txt"
+    with open(flag_file, 'w') as f:
+        f.write(flag)
+    
+    stego_cmd = [
+        'steghide', 'embed',
+        '-cf', str(output_file),
+        '-ef', str(flag_file),
+        '-p', password,
+        '-f' # Force overwrite
+    ]
+    
+    try:
+        # Steghide might fail if JPEG format is incompatible or file too small, but standard images usually work
+        p = subprocess.run(stego_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        if p.returncode == 0:
+            print(f"  ✓ Embedded Flag with Steghide (Pass: {password})")
+            flag_file.unlink() # Delete temp flag file
+        else:
+            print(f"  ✗ Steghide failed: {p.stderr}")
+    except Exception as e:
+        print(f"  ✗ Steghide exception: {e}")
+
 def copy_static_files(team_id, team_dir):
     """Copy static challenge files that don't need modification"""
-    
-    # OSINT - mystery location image
-    osint_source = CHALLENGES_DIR / "osint" / "mystery_location.jpg"
-    osint_dest = team_dir / "osint" / "mystery_location.jpg"
-    if osint_source.exists():
-        shutil.copy2(osint_source, osint_dest)
-        print(f"  ✓ Copied OSINT image for Team {team_id}")
     
     # Stego - wordlist
     wordlist_source = CHALLENGES_DIR / "stego" / "wordlist.txt"
@@ -47,6 +182,7 @@ def copy_static_files(team_id, team_dir):
     if wordlist_source.exists():
         shutil.copy2(wordlist_source, wordlist_dest)
         print(f"  ✓ Copied stego wordlist for Team {team_id}")
+
 
 
 def generate_stego_image(team_id, team_dir):
@@ -151,6 +287,7 @@ def generate_team_files(team_id):
     copy_static_files(team_id, team_dir)
     
     # Generate dynamic files with team-specific flags
+    generate_osint_challenge(team_id, team_dir)
     generate_stego_image(team_id, team_dir)
     generate_pcap_file(team_id, team_dir)
     generate_crypto_file(team_id, team_dir)

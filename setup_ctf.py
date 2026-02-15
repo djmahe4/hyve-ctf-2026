@@ -400,7 +400,7 @@ def generate_team_files(participant_count, create_admin_team):
         'python:3.9-slim',
         'bash', '-c',
         f'''
-        apt-get update && apt-get install -y steghide curl && \
+        apt-get update && apt-get install -y steghide curl wget libimage-exiftool-perl && \
         pip install scapy pyyaml && \
         python /utils/generate_team_files.py --count {total_teams}
         '''

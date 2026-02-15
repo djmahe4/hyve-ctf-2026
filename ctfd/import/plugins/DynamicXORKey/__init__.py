@@ -1,7 +1,7 @@
 from CTFd.plugins import register_plugin_assets_directory
 from CTFd.plugins.challenges import CHALLENGE_CLASSES, BaseChallenge
 from CTFd.plugins.flags import FLAG_CLASSES, BaseFlag
-from CTFd.models import db, Challenges, Solves, Keys
+from CTFd.models import db, Challenges, Solves, Flags
 from CTFd.utils.user import get_current_team, get_current_user
 from CTFd.utils import config as ctfd_config
 from flask import request
@@ -90,7 +90,7 @@ class DecayChallengeValue(BaseChallenge):
         data = request.form or request.get_json()
         submission = data.get("submission", "").strip()
         
-        flags = Keys.query.filter_by(challenge_id=challenge.id).all()
+        flags = Flags.query.filter_by(challenge_id=challenge.id).all()
         for flag in flags:
             if DynamicXORKey.compare(flag.content, submission):
                 return True, "Correct"

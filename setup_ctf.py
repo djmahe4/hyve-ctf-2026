@@ -105,7 +105,7 @@ def setup_ctfd():
     nonce = soup.find('input', {'name': 'nonce'})['value']
     
     # Calculate event times
-    start_time = datetime.datetime.now(datetime.UTC) + timedelta(minutes=CTF_START_OFFSET_MINUTES)
+    start_time = datetime.datetime.now(datetime.timezone.utc) + timedelta(minutes=CTF_START_OFFSET_MINUTES)
     end_time = start_time + timedelta(hours=CTF_DURATION_HOURS)
     
     # Setup payload - CTFd minimal setup requirements

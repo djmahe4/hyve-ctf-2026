@@ -2,3 +2,5 @@ flask
 scapy
 requests
 python-dotenv
+pyyaml
+beautifulsoup4

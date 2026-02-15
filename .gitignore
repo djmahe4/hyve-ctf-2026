@@ -26,6 +26,9 @@ challenges/stego/*.jpeg
 challenges/network/*.pcap
 challenges/osint/*.jpg
 
+# Team-specific generated files
+challenges/teams/
+
 # Backups
 *.tar.gz
 backup_*/

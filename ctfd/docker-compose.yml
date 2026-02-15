@@ -54,3 +54,4 @@ services:
 networks:
   ctfd_network:
     driver: bridge
+    name: ctfd_network

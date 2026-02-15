@@ -1,224 +1,174 @@
 version: "1.0"
 
 challenges:
-  - name: "Where in the World?"
+  - name: "Bistro Location"
     category: OSINT
     description: |
-      You've been given an image of a mysterious location. Your mission is to identify where this photo was taken.
+      Our secret bistro location is hidden in this image. Can you find where we are located?
+      
+      <!-- HYVE_CTF{not_this_one}_FAKEHASH -->
 
-      Use your OSINT skills to:
-      - Extract EXIF data from the image
-      - Perform reverse image search
-      - Identify visual landmarks
-      - Read any text visible on signs or buildings
-
-      Flag format: FLAG{CITY_COUNTRY_LANDMARK}
-      Example: FLAG{LONDON_UK_BIGBEN}
+      Flag format: HYVE_CTF{CITY_COUNTRY_LANDMARK_HASH}
+      Example: HYVE_CTF{LONDON_UK_BIGBEN_HASH}
 
       Download the image from: http://challenges:8081/osint/mystery_location.jpg
     value: 100
-    type: standard
+    type: decay
     state: visible
     max_attempts: 0
     flags:
-      - flag: "FLAG{PARIS_FRANCE_EIFFELTOWER}"
-        type: static
+      - flag: "HYVE_CTF{PARIS_FRANCE_EIFFELTOWER_HASH}"
+        type: dynamic_xor
     files:
       - location: /challenges/osint/mystery_location.jpg
     hints:
-      - content: "Try extracting EXIF data from the image using exiftool"
+      - content: "EXIF data might reveal the coordinates."
         cost: 10
-      - content: "Use reverse image search (Google Images, TinEye, Yandex)"
-        cost: 20
-      - content: "Look for famous landmarks in European capitals"
-        cost: 30
 
-  - name: "Hidden Message"
+  - name: "Secret Ingredient List"
     category: Steganography
     description: |
-      There's a secret message hidden in this innocent-looking cat picture.
-
-      The message has been embedded using steghide. You'll need to find the password to extract it.
-
-      Hint: The password is a year... and it's related to this CTF.
-
+      A secret list of ingredients is hidden in this bistro cat photo. 
+      It was embedded using steghide.
+      
+      Hint: The password is in the provided wordlist (which is now shorter for your convenience).
+      
       Download the image from: http://challenges:8081/stego/cat.jpeg
+      Download the wordlist from: http://challenges:8081/stego/wordlist.txt
     value: 100
-    type: standard
+    type: decay
     state: visible
     max_attempts: 0
     flags:
-      - flag: "FLAG{st3g0_cat_m4st3r}"
-        type: static
+      - flag: "HYVE_CTF{st3g0_cat_m4st3r_HASH}"
+        type: dynamic_xor
     files:
       - location: /challenges/stego/cat.jpeg
+      - location: /challenges/stego/wordlist.txt
     hints:
-      - content: "Use the steghide tool to extract hidden data"
-        cost: 10
-      - content: "The password format is: ctf####"
+      - content: "The password is the year '2026' transposition-ciphered."
         cost: 20
 
-  - name: "Ancient Cipher"
+  - name: "Bistro Menu Cipher"
     category: Cryptography
     description: |
-      We intercepted this encrypted message:
-
+      We found a ciphered note on the back of a menu:
       SYNT{pnrfne_vf_gbb_jrnx}
 
       It appears to be using a classical shift cipher. Can you decrypt it?
 
       Hint: This cipher was used by Julius Caesar himself.
     value: 100
-    type: standard
+    type: decay
     state: visible
     max_attempts: 0
     flags:
-      - flag: "FLAG{caesar_is_too_weak}"
-        type: static
-    hints:
-      - content: "This is the Caesar cipher (shift cipher)"
-        cost: 10
-      - content: "Try all possible shifts from 1 to 25"
-        cost: 20
-      - content: "ROT13 is a specific type of Caesar cipher"
-        cost: 30
+      - flag: "HYVE_CTF{caesar_is_too_weak_HASH}"
+        type: dynamic_xor
 
-  - name: "Login Bypass"
+  - name: "Staff Portal Bypass"
     category: Web
     description: |
-      We found a login page that seems vulnerable to SQL injection.
+      The Hyve Bistro staff portal has a vulnerability. Gain access to the internal dashboard.
+      Target: http://challenges:8080/staff-login
 
-      Target: http://challenges:8080/login
-
-      The login form uses this SQL query structure:
-      SELECT * FROM users WHERE username='USER_INPUT' AND password='PASSWORD_INPUT'
-
-      Can you bypass the authentication and retrieve the flag?
+      Retrieve the internal bypass token.
     value: 200
-    type: standard
+    type: decay
     state: visible
     max_attempts: 0
     flags:
-      - flag: "FLAG{sql_1nj3ct10n_b4s1c}"
-        type: static
+      - flag: "HYVE_CTF{sql_1nj3ct10n_b4s1c_HASH}"
+        type: dynamic_xor
     hints:
-      - content: "SQL comments can be made with --"
-        cost: 20
-      - content: "Try using admin'-- as the username"
+      - content: "Standard SQLi characters like ' might break the query."
         cost: 40
 
-  - name: "Cookie Monster"
+  - name: "Gold Membership"
     category: Web
     description: |
-      This website checks your cookies to determine your privilege level.
-
+      Only 'Gold Members' can see special reward codes on their profile.
       Target: http://challenges:8080/profile
-
-      Your current cookie: role=user
-
-      Can you figure out how to access the admin area?
     value: 200
-    type: standard
+    type: decay
     state: visible
     max_attempts: 0
     flags:
-      - flag: "FLAG{c00k13_m4n1pul4t10n}"
-        type: static
+      - flag: "HYVE_CTF{c00k13_m4n1pul4t10n_HASH}"
+        type: dynamic_xor
     hints:
-      - content: "Use browser DevTools to inspect and modify cookies"
-        cost: 20
-      - content: "Try changing the role cookie value to 'admin'"
+      - content: "Check your cookies. Can you change your role?"
         cost: 40
 
-  - name: "Wireshark Detective"
+  - name: "Bistro Traffic Audit"
     category: Network
     description: |
-      We captured network traffic that contains cleartext credentials.
-
-      Download the PCAP file: http://challenges:8081/network/cleartext_traffic.pcap
-
-      Analyze the traffic using Wireshark or tshark to find the flag.
-
-      Hint: Look for protocols that transmit data in cleartext (FTP, HTTP)
+      Analyze the bistro's internal traffic to find cleartext customer credentials.
+      Download: http://challenges:8081/network/cleartext_traffic.pcap
     value: 200
-    type: standard
+    type: decay
     state: visible
     max_attempts: 0
     flags:
-      - flag: "FLAG{cl34rt3xt_cr3ds_f0und}"
-        type: static
+      - flag: "HYVE_CTF{cl34rt3xt_cr3ds_f0und_HASH}"
+        type: dynamic_xor
     files:
       - location: /challenges/network/cleartext_traffic.pcap
-    hints:
-      - content: "Filter by 'ftp' or 'http' protocol in Wireshark"
-        cost: 20
-      - content: "Use 'Follow TCP Stream' to see the full conversation"
-        cost: 40
 
-  - name: "Encoded Secrets"
+  - name: "Chef's Secret Recipe"
     category: Cryptography
     description: |
-      The flag has been encoded multiple times using Base64 encoding.
-
-      Encoded string:
-      VTBGTVIxdGlZWE5sTmpSZlpHVmpiMlJsWkY5emRXTmpaWE56TG5SMGVIUT0=
-
-      Decode it to reveal the flag!
+      The Chef encoded his secret recipe multiple times.
+      Encoded string: VTBGTVIxdGlZWE5sTmpSZlpHVmpiMlJsWkY5emRXTmpaWE56TG5SMGVIUT0=
     value: 200
-    type: standard
+    type: decay
     state: visible
     max_attempts: 0
     flags:
-      - flag: "FLAG{base64_decoded_success.txt}"
-        type: static
-    hints:
-      - content: "Use Python: import base64; base64.b64decode(string)"
-        cost: 20
-      - content: "The string has been encoded 3 times - decode it 3 times!"
-        cost: 40
+      - flag: "HYVE_CTF{base64_decoded_success.txt_HASH}"
+        type: dynamic_xor
 
-  - name: "Script Injection"
+  - name: "Menu Search Vulnerability"
     category: Web
     description: |
-      This search page reflects your input directly in the HTML without sanitization.
+      The ingredients search bar is reflecting input. 
+      Target: http://challenges:8080/menu-search?q=YOUR_INPUT
 
-      Target: http://challenges:8080/search?q=YOUR_INPUT
-
-      Your goal: Execute JavaScript to display alert(document.cookie)
-
-      Successful XSS will reveal the flag.
+      Execute script to reveal the secret search token.
     value: 300
-    type: standard
+    type: decay
     state: visible
     max_attempts: 0
     flags:
-      - flag: "FLAG{xss_r3fl3ct3d_vuln}"
-        type: static
-    hints:
-      - content: "Try injecting <script>alert(1)</script>"
-        cost: 30
-      - content: "The input is not sanitized - it's reflected directly in HTML"
-        cost: 60
+      - flag: "HYVE_CTF{xss_r3fl3ct3d_vuln_HASH}"
+        type: dynamic_xor
 
-  - name: "Object Reference"
+  - name: "Order Tracking Exploit"
     category: Web
     description: |
-      This API endpoint returns user data based on the user ID.
+      Access other customers' orders via the tracking API.
+      Target: http://challenges:8080/api/order/tracking/1
 
-      Target: http://challenges:8080/api/user/YOUR_ID
-
-      You're currently user_id=2. Can you access the admin's data (user_id=1)?
-
-      The API doesn't properly check authorization!
+      View the note for order #1.
     value: 300
-    type: standard
+    type: decay
     state: visible
     max_attempts: 0
     flags:
-      - flag: "FLAG{1d0r_pr1v_3sc4l4t10n}"
-        type: static
-    hints:
-      - content: "Try changing the user_id parameter in the URL"
-        cost: 30
-      - content: "The API has no authorization checks - try user_id=1"
-        cost: 60
+      - flag: "HYVE_CTF{1d0r_pr1v_3sc4l4t10n_HASH}"
+        type: dynamic_xor
+
+  - name: "Ingredient Source Diver"
+    category: Web
+    description: |
+      The most secret ingredient source is hidden in plain sight.
+      Target: http://challenges:8080/secret-ingredients
+    value: 100
+    type: decay
+    state: visible
+    max_attempts: 0
+    flags:
+      - flag: "HYVE_CTF{html_embedded_flag_HASH}"
+        type: dynamic_xor
+
+

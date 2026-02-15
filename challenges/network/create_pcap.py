@@ -24,7 +24,7 @@ def create_pcap():
     packets.append(ftp_response1)
     
     # Packet 3: PASS command with flag
-    ftp_pass = IP(src=client_ip, dst=server_ip) / TCP(sport=50234, dport=21) / Raw(load="PASS FLAG{cl34rt3xt_cr3ds_f0und}\r\n")
+    ftp_pass = IP(src=client_ip, dst=server_ip) / TCP(sport=50234, dport=21) / Raw(load="PASS HYVE_CTF{cl34rt3xt_cr3ds_f0und_HASH}\r\n")
     packets.append(ftp_pass)
     
     # Packet 4: Server response - login successful

@@ -40,12 +40,12 @@ You can download images from Pexels (free to use):
 ### Creating the Image
 
 ```bash
-# Download Eiffel Tower image
-wget -O mystery_location.jpg "https://images.pexels.com/photos/699466/pexels-photo-699466.jpeg?auto=compress&cs=tinysrgb&w=1200"
+# Download Big Ben image
+wget -O mystery_location.jpg "https://images.pexels.com/photos/460672/pexels-photo-460672.jpeg?auto=compress&cs=tinysrgb&w=1200"
 
 # Add GPS metadata
-exiftool -GPSLatitude="48.8584" -GPSLongitude="2.2945" \
-         -GPSLatitudeRef="N" -GPSLongitudeRef="E" \
+exiftool -GPSLatitude="51.5007" -GPSLongitude="0.1246" \
+         -GPSLatitudeRef="N" -GPSLongitudeRef="W" \
          -overwrite_original mystery_location.jpg
 
 # Verify metadata
@@ -58,4 +58,4 @@ Participants should:
 1. Extract EXIF data using `exiftool mystery_location.jpg`
 2. Use reverse image search (Google Images, TinEye)
 3. Identify the landmark visually
-4. Format the flag: FLAG{PARIS_FRANCE_EIFFELTOWER}
+4. Format the flag: FLAG{LONDON_UK_BIGBEN}

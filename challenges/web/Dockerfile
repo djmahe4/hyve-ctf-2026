@@ -6,8 +6,10 @@ WORKDIR /app
 RUN pip install --no-cache-dir flask
 
 # Copy application files
-COPY app.py .
-COPY init_db.py .
+# Copy application files
+COPY challenges/web/app.py .
+COPY challenges/web/init_db.py .
+COPY utils/ /app/utils/
 
 # Initialize database
 RUN python init_db.py

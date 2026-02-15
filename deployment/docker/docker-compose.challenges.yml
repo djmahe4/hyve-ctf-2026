@@ -3,8 +3,8 @@ version: '3.8'
 services:
   challenge-web:
     build:
-      context: ../../challenges/web
-      dockerfile: Dockerfile
+      context: ../../
+      dockerfile: challenges/web/Dockerfile
     container_name: ctf-web-challenges
     ports:
       - "8080:8080"

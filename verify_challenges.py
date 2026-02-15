@@ -66,11 +66,28 @@ def test_file_proxy(session, team_id=1):
     except Exception as e:
         print(f"  ✗ Proxy error: {e}")
 
+import argparse
+
 def main():
+    parser = argparse.ArgumentParser(description='Verify CTFd Challenges')
+    parser.add_argument('--url', default="http://localhost:8001", help='CTFd URL')
+    parser.add_argument('--proxy-url', default="http://localhost:8082", help='File Proxy URL')
+    parser.add_argument('--username', default="user_team1", help='Team User')
+    parser.add_argument('--password', default="team1pass", help='Team Password')
+    
+    args = parser.parse_args()
+    
+    global CTFD_URL, PROXY_URL
+    CTFD_URL = args.url.rstrip('/')
+    PROXY_URL = args.proxy_url.rstrip('/')
+    
+    print(f"[*] Target: {CTFD_URL}")
+    print(f"[*] Proxy:  {PROXY_URL}")
+    
     session = requests.Session()
     
-    # Login as User Team 1
-    if not login(session, "user_team1", "team1pass"):
+    # Login
+    if not login(session, args.username, args.password):
         print("skipping tests needing auth")
         return
 

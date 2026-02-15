@@ -55,16 +55,16 @@ LANDMARKS = [
         "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Colosseo_2020.jpg/800px-Colosseo_2020.jpg"
     },
     {
-        "name": "Statue of Liberty",
-        "keywords": ["NEWYORK", "USA", "STATUEOFLIBERTY"],
-        "lat": 40.6892, "lon": 74.0445, "lat_ref": "N", "lon_ref": "W", # Should be correct sign
-        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Statue_of_Liberty_7.jpg/800px-Statue_of_Liberty_7.jpg"
+        "name": "Sydney Opera House",
+        "keywords": ["SYDNEY", "AUSTRALIA", "OPERAHOUSE"],
+        "lat": -33.8568, "lon": 151.2153, "lat_ref": "S", "lon_ref": "E",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Sydney_Opera_House_Sails.jpg/800px-Sydney_Opera_House_Sails.jpg"
     },
     {
-        "name": "Taj Mahal",
-        "keywords": ["AGRA", "INDIA", "TAJMAHAL"],
-        "lat": 27.1751, "lon": 78.0421, "lat_ref": "N", "lon_ref": "E",
-        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Taj_Mahal_(Edited).jpeg/800px-Taj_Mahal_(Edited).jpeg"
+        "name": "Great Wall of China",
+        "keywords": ["BEIJING", "CHINA", "GREATWALL"],
+        "lat": 40.4319, "lon": 116.5704, "lat_ref": "N", "lon_ref": "E",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/The_Great_Wall_of_China_at_Jinshanling-edit.jpg/800px-The_Great_Wall_of_China_at_Jinshanling-edit.jpg"
     },
 ]
 

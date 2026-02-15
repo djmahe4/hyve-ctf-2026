@@ -255,60 +255,106 @@ def get_api_token(session):
         print(f"[✗] Token generation exception: {e}")
         return None
 
-def create_teams(session, participant_count, create_admin_team=True):
-    """Create teams"""
+def create_teams(token, participant_count, create_admin_team=True):
+    """Create users and teams using API"""
     total_teams = participant_count + (1 if create_admin_team else 0)
     print(f"\n[*] Creating {participant_count} participant teams" + 
           (f" + 1 admin test team" if create_admin_team else "") + "...")
     
+    headers = {
+        "Authorization": f"Token {token}",
+        "Content-Type": "application/json"
+    }
+
+    def _api_post(endpoint, data, context_name):
+        try:
+            r = requests.post(f"{CTFD_URL}/api/v1/{endpoint}", json=data, headers=headers)
+            if r.status_code == 200:
+                if 'data' in r.json():
+                    return r.json()['data']
+                return r.json() # success might be true
+            # Ignore "already exists" errors (400) to be idempotent-ish
+            if r.status_code == 400 and "already exists" in r.text:
+                 # Try to fetch existing? For now just return None and log
+                 print(f"    ! {context_name} likely already exists")
+                 return None
+            print(f"  ✗ Failed to create {context_name}: {r.status_code} {r.text[:100]}")
+            return None
+        except Exception as e:
+            print(f"  ✗ Exception creating {context_name}: {e}")
+            return None
+
     # Create participant teams (Team 1 to Team N)
     for i in range(1, participant_count + 1):
-        team_data = {
-            'name': f'Team {i}',
-            'email': f'team{i}@hyve-ctf.local',
-            'password': f'team{i}pass',
-            'website': '',
-            'affiliation': '',
-            'country': '',
-            'hidden': False,
-            'banned': False
+        username = f"user_team{i}"
+        email = f"team{i}@hyve-ctf.local"
+        password = f"team{i}pass"
+        team_name = f"Team {i}"
+
+        # 1. Create User
+        user_data = {
+            "name": username,
+            "email": email,
+            "password": password,
+            "type": "user",
+            "verified": True
         }
+        user = _api_post("users", user_data, f"User {username}")
         
-        response = session.post(
-            f"{CTFD_URL}/api/v1/teams",
-            json=team_data
-        )
-        
-        if response.status_code == 200:
-            print(f"  ✓ Created Team {i}")
-        else:
-            print(f"  ✗ Failed to create Team {i}: {response.text}")
-    
+        # 2. Create Team
+        team_data = {
+            "name": team_name,
+            "email": email, # Team email can be same as user
+        }
+        team = _api_post("teams", team_data, f"Team {team_name}")
+
+        # 3. Add User to Team
+        if user and team:
+            # Patch user to assign team_id
+            patch_url = f"{CTFD_URL}/api/v1/users/{user['id']}"
+            try:
+                r = requests.patch(patch_url, json={"team_id": team['id']}, headers=headers)
+                if r.status_code == 200:
+                    print(f"  ✓ Created & Linked {team_name} (User: {username})")
+                else:
+                    print(f"  ✗ Failed to link {username} to {team_name}: {r.text[:100]}")
+            except Exception as e:
+                print(f"  ✗ Exception linking user: {e}")
+        elif not user and not team:
+             print(f"  ! Skipping {team_name} (User/Team creation failed or exist)")
+
     # Create admin test team (Team 21)
     if create_admin_team:
-        admin_team_id = participant_count + 1
-        team_data = {
-            'name': f'Team {admin_team_id} (Admin Test)',
-            'email': f'admintest@hyve-ctf.local',
-            'password': 'admintestpass',
-            'website': '',
-            'affiliation': 'Admin',
-            'country': '',
-            'hidden': False,
-            'banned': False
+        admin_id = participant_count + 1
+        username = f"admin_test"
+        email = "admintest@hyve-ctf.local"
+        password = "admintestpass"
+        team_name = f"Team {admin_id} (Admin Test)"
+
+        user_data = {
+            "name": username,
+            "email": email,
+            "password": password,
+            "type": "admin", # Make admin user an admin? Or user? Let's make user for now to test team features, or admin.
+            "verified": True
         }
-        
-        response = session.post(
-            f"{CTFD_URL}/api/v1/teams",
-            json=team_data
-        )
-        
-        if response.status_code == 200:
-            print(f"  ✓ Created Team {admin_team_id} (Admin Test Team)")
-        else:
-            print(f"  ✗ Failed to create admin test team: {response.text}")
-    
-    print(f"[✓] All teams created!")
+        user = _api_post("users", user_data, "Admin Test User")
+
+        team_data = {
+            "name": team_name,
+            "email": email,
+            "affiliation": "Admin"
+        }
+        team = _api_post("teams", team_data, "Admin Test Team")
+
+        if user and team:
+            try:
+                r = requests.patch(f"{CTFD_URL}/api/v1/users/{user['id']}", json={"team_id": team['id']}, headers=headers)
+                if r.status_code == 200:
+                    print(f"  ✓ Created {team_name}")
+            except: pass
+
+    print(f"[✓] Team processing complete!")
 
 def import_challenges(token):
     """Import challenges using existing script"""
@@ -467,7 +513,7 @@ Examples:
         sys.exit(1)
     
     # Step 4: Create teams
-    create_teams(session, PARTICIPANT_TEAMS, CREATE_ADMIN_TEST_TEAM)
+    create_teams(token, PARTICIPANT_TEAMS, CREATE_ADMIN_TEST_TEAM)
     
     # Step 5: Import challenges
     import_challenges(token)

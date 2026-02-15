@@ -16,12 +16,6 @@ import os
 
 CTFD_URL = "http://localhost:8001"
 
-# Default configuration
-DEFAULT_PARTICIPANT_TEAMS = 20
-DEFAULT_CREATE_ADMIN_TEST_TEAM = True
-DEFAULT_CTF_DURATION_HOURS = 2
-DEFAULT_CTF_START_OFFSET_MINUTES = 5
-
 def check_dependencies():
     """Check for required dependencies"""
     print("\n[*] Checking dependencies...")
@@ -85,7 +79,7 @@ def setup_ctfd():
     nonce = soup.find('input', {'name': 'nonce'})['value']
     
     # Calculate event times
-    start_time = datetime.utcnow() + timedelta(minutes=CTF_START_OFFSET_MINUTES)
+    start_time = datetime.datetime.now(datetime.UTC) + timedelta(minutes=CTF_START_OFFSET_MINUTES)
     end_time = start_time + timedelta(hours=CTF_DURATION_HOURS)
     
     # Setup payload
@@ -289,6 +283,11 @@ def generate_team_files(participant_count, create_admin_team):
         print(f"[✗] Team file generation failed!")
 
 def main():
+    # Default configuration
+    DEFAULT_PARTICIPANT_TEAMS = 20
+    DEFAULT_CREATE_ADMIN_TEST_TEAM = True
+    DEFAULT_CTF_DURATION_HOURS = 2
+    DEFAULT_CTF_START_OFFSET_MINUTES = 5
     parser = argparse.ArgumentParser(
         description='Automated CTFd Setup for Hivye CTF 2026',
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -337,6 +336,8 @@ Examples:
     )
     
     args = parser.parse_args()
+
+    global CTF_DURATION_HOURS, CTF_START_OFFSET_MINUTES
     
     # Configuration from args
     PARTICIPANT_TEAMS = args.teams

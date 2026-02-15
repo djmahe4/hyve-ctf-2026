@@ -78,6 +78,15 @@ if [ "$REMOVE_DATA" = true ]; then
         echo "    ℹ No team files to remove"
     fi
     echo ""
+    
+    echo "[*] Removing CTFd persistent data..."
+    if [ -d "ctfd/data" ]; then
+        rm -rf ctfd/data
+        echo "    ✓ CTFd data removed (database, uploads, logs)"
+    else
+        echo "    ℹ No CTFd data to remove"
+    fi
+    echo ""
 fi
 
 echo ""

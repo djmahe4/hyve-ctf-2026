@@ -123,8 +123,8 @@ def setup_ctfd():
         'ctf_small_icon': '',
         'ctf_theme': 'core',
         'theme_color': '',
-        'start': start_time.strftime('%Y-%m-%d %H:%M:%S'), # Try standard format
-        'end': end_time.strftime('%Y-%m-%d %H:%M:%S')
+        'start': int(start_time.timestamp()),
+        'end': int(end_time.timestamp())
     }
     
     # Try the setup
@@ -135,13 +135,13 @@ def setup_ctfd():
         if response.status_code == 302 or (response.status_code == 200 and 'login' in response.url):
             print(f"[✓] CTFd configured successfully!")
             print(f"    Admin: admin / admin123")
-            print(f"    Start: {start_time.strftime('%Y-%m-%d %H:%M:%S')} UTC")
-            print(f"    End: {end_time.strftime('%Y-%m-%d %H:%M:%S')} UTC")
+            print(f"    Start: {start_time}")
+            print(f"    End: {end_time}")
             return session, {
                 'username': 'admin',
                 'password': 'admin123',
-                'start': start_time,
-                'end': end_time
+                'start': int(start_time.timestamp()),
+                'end': int(end_time.timestamp())
             }
         else:
             print(f"[✗] Setup failed with status code: {response.status_code}")

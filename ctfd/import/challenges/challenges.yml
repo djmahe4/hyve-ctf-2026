@@ -131,7 +131,7 @@ challenges:
     state: visible
     max_attempts: 0
     flags:
-      - flag: "HYVE_CTF{base64_decoded_success.txt_HASH}"
+      - flag: "HYVE_CTF{base64_decoded_success_HASH}"
         type: dynamic_xor
 
   - name: "Menu Search Vulnerability"

@@ -116,6 +116,30 @@ def generate_pcap_file(team_id, team_dir):
         print(f" ✗ Error generating PCAP: {e}")
 
 
+def generate_crypto_file(team_id, team_dir):
+    """Generate team-specific Crypto file"""
+    crypto_script = CHALLENGES_DIR / "crypto" / "create_crypto.py"
+    output_file = team_dir / "crypto" / "base64.txt"
+    
+    if not crypto_script.exists():
+        print(f"  ⚠ Crypto script not found: {crypto_script}")
+        return
+    
+    try:
+        # Run script
+        result = subprocess.run(
+            ['python', str(crypto_script), str(team_id), str(output_file)],
+            capture_output=True,
+            text=True,
+            cwd=PROJECT_ROOT
+        )
+        if output_file.exists():
+            print(f"  ✓ Generated Crypto file for Team {team_id}")
+        else:
+            print(f"  ✗ Failed to generate Crypto file")
+    except Exception as e:
+        print(f"  ✗ Error generating Crypto file: {e}")
+
 def generate_team_files(team_id):
     """Generate all challenge files for a specific team"""
     print(f"\n[*] Generating files for Team {team_id}")
@@ -129,6 +153,7 @@ def generate_team_files(team_id):
     # Generate dynamic files with team-specific flags
     generate_stego_image(team_id, team_dir)
     generate_pcap_file(team_id, team_dir)
+    generate_crypto_file(team_id, team_dir)
     
     print(f"[+] Team {team_id} files generated successfully!\n")
 

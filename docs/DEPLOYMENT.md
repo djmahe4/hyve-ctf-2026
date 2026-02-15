@@ -1,43 +1,118 @@
-# Production Deployment Guide
+# Hivye CTF 2026 - Installation & Deployment Guide
 
-Best practices and guidelines for deploying Hivye CTF 2026 in a production environment.
+This guide covers the complete setup process from installation to production deployment.
 
-## Production Checklist
+---
 
-Before deploying to production, ensure you complete the following:
+## 1. System Requirements
+
+### Prerequisites
+- **Docker**: 20.10+
+- **Docker Compose**: 2.0+
+- **Python**: 3.8+
+- **RAM**: 4GB Minimum (8GB Recommended)
+- **OS**: Linux (Recommended), macOS, or Windows with WSL2
+
+### Docker Setup (Ubuntu)
+
+```bash
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y docker.io docker-compose
+sudo usermod -aG docker $USER
+newgrp docker
+```
+
+### Python Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## 2. Quick Deployment (Development)
+
+### Step 1: Start Infrastructure
+```bash
+# Start CTFd
+cd ctfd && docker-compose up -d && cd ..
+
+# Start Challenges & Proxy
+cd deployment/docker && docker-compose -f docker-compose.challenges.yml up -d && cd ../..
+```
+
+### Step 2: Automated Setup
+Run the orchestrator to configure the event, create teams, and generate files:
+```bash
+python setup_ctf.py
+```
+
+**What gets created:**
+- ✅ **Admin Account**: `admin` / `admin123`
+- ✅ **Event**: 2-hour duration, starts in 5 minutes
+- ✅ **Teams**: 20 participant teams + 1 admin test team
+- ✅ **Files**: Team-specific assets generated automatically
+
+---
+
+## 3. Manual Configuration (Advanced)
+
+### Challenge Import
+```bash
+python import_challenges.py ctfd/import/challenges/challenges.yml
+```
+
+### Team File Generation
+```bash
+docker run --rm \
+  -v $(pwd)/challenges:/challenges \
+  -v $(pwd)/utils:/utils \
+  -e SECRET_FLAG_KEY="HivyeS3cretKey2026" \
+  python:3.9-slim bash -c "
+    apt-get update && apt-get install -y steghide curl &&
+    pip install scapy pyyaml &&
+    python /utils/generate_team_files.py --count 21
+  "
+```
+
+---
+
+## 4. Access Points
+
+| Service | Port | URL | Purpose |
+|---------|------|-----|---------|
+| **CTFd** | 8001 | http://localhost:8001 | Competition Dashboard |
+| **Web Challenges** | 8080 | http://localhost:8080 | Vulnerable Bistro App |
+| **File Server** | 8081 | http://localhost:8081 | Legacy Static Files |
+| **File Proxy** | 8082 | http://localhost:8082 | **Authenticated** Team Downloads |
+
+---
+
+## 5. Production Deployment
+
+### Security Hardening Checklist
+
+Before deploying to production:
 
 - [ ] Change all default passwords
 - [ ] Enable HTTPS/SSL
 - [ ] Configure firewall rules
-- [ ] Set up monitoring
+- [ ] Set up monitoring and logging
 - [ ] Configure backups
-- [ ] Test disaster recovery
 - [ ] Review resource limits
-- [ ] Set up logging
 - [ ] Configure rate limiting
-- [ ] Review security settings
 
-## Security Hardening
+### Change Default Credentials
 
-### 1. Change Default Credentials
-
-Edit `ctfd/docker-compose.yml` and change:
+**CTFd Database** (`ctfd/docker-compose.yml`):
 ```yaml
 environment:
   - MYSQL_ROOT_PASSWORD=YOUR_STRONG_PASSWORD_HERE
   - MYSQL_PASSWORD=YOUR_CTFD_PASSWORD_HERE
 ```
 
-Edit `deployment/docker/docker-compose.challenges.yml` and update flag values:
-```yaml
-environment:
-  - FLAG_SQL_INJECTION=YOUR_CUSTOM_FLAG_1
-  - FLAG_COOKIE_MANIP=YOUR_CUSTOM_FLAG_2
-  - FLAG_XSS=YOUR_CUSTOM_FLAG_3
-  - FLAG_IDOR=YOUR_CUSTOM_FLAG_4
-```
+**Admin Account**: Change immediately after first login via CTFd UI.
 
-### 2. Enable HTTPS
+### Enable HTTPS
 
 Install nginx as reverse proxy with SSL:
 
@@ -46,339 +121,60 @@ Install nginx as reverse proxy with SSL:
 sudo apt-get update
 sudo apt-get install -y nginx certbot python3-certbot-nginx
 
-# Create nginx configuration
+# Obtain SSL certificate
+sudo certbot --nginx -d yourdomain.com
+
+# Configure nginx
 sudo nano /etc/nginx/sites-available/ctfd
 ```
 
-Example nginx configuration:
+Example nginx config:
 ```nginx
 server {
-    listen 80;
-    server_name ctf.yourdomain.com;
-    return 301 https://$server_name$request_uri;
-}
+    listen 443 ssl;
+    server_name yourdomain.com;
 
-server {
-    listen 443 ssl http2;
-    server_name ctf.yourdomain.com;
-
-    ssl_certificate /etc/letsencrypt/live/ctf.yourdomain.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/ctf.yourdomain.com/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
 
     location / {
-        proxy_pass http://localhost:8000;
+        proxy_pass http://localhost:8001;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
     }
 }
 ```
 
+---
+
+## 6. Troubleshooting
+
+### Proxy Access Issues
+**Error**: "No session cookie found"  
+**Solution**: Users must be logged into their team account on http://localhost:8001 before clicking download links.
+
+### CTFd Connection Error
+If the file proxy logs show connection errors to CTFd:
 ```bash
-# Enable the site
-sudo ln -s /etc/nginx/sites-available/ctfd /etc/nginx/sites-enabled/
-
-# Obtain SSL certificate
-sudo certbot --nginx -d ctf.yourdomain.com
-
-# Test nginx configuration
-sudo nginx -t
-
-# Restart nginx
-sudo systemctl restart nginx
+docker-compose -f deployment/docker/docker-compose.challenges.yml restart file-proxy
 ```
 
-### 3. Firewall Configuration
-
-Configure UFW (Uncomplicated Firewall):
+### Reset Environment
 ```bash
-# Enable UFW
-sudo ufw enable
+bash stop.sh
+rm -rf ctfd/data/        # WARNING: Deletes all users/settings
+rm -rf challenges/teams/ # Deletes generated files
 
-# Allow SSH
-sudo ufw allow 22/tcp
-
-# Allow HTTP and HTTPS
-sudo ufw allow 80/tcp
-sudo ufw allow 443/tcp
-
-# Block direct access to Docker ports (if using nginx)
-sudo ufw deny 8000/tcp
-sudo ufw deny 8080/tcp
-sudo ufw deny 8081/tcp
-
-# Check status
-sudo ufw status
+# Start fresh
+cd ctfd && docker-compose up -d && cd ..
+cd deployment/docker && docker-compose -f docker-compose.challenges.yml up -d && cd ../..
+python setup_ctf.py
 ```
 
-### 4. Resource Limits
+---
 
-Add resource limits to `docker-compose.yml`:
-
-```yaml
-services:
-  ctfd:
-    # ... existing configuration ...
-    deploy:
-      resources:
-        limits:
-          cpus: '2'
-          memory: 2G
-        reservations:
-          cpus: '1'
-          memory: 1G
-
-  db:
-    # ... existing configuration ...
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 1G
-        reservations:
-          cpus: '0.5'
-          memory: 512M
-```
-
-## Monitoring
-
-### Docker Stats
-Monitor container resource usage:
-```bash
-# Real-time stats
-docker stats
-
-# Or for specific containers
-docker stats ctfd-ctfd-1 ctfd-db-1 ctfd-cache-1
-```
-
-### Prometheus + Grafana (Optional)
-
-Add monitoring stack:
-```yaml
-# Add to ctfd/docker-compose.yml
-  prometheus:
-    image: prom/prometheus
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-    ports:
-      - "9090:9090"
-    networks:
-      - ctfd_network
-
-  grafana:
-    image: grafana/grafana
-    ports:
-      - "3000:3000"
-    networks:
-      - ctfd_network
-```
-
-## Backup Strategy
-
-### Database Backup
-
-Create automated backup script:
-```bash
-#!/bin/bash
-# backup.sh
-
-DATE=$(date +%Y%m%d_%H%M%S)
-BACKUP_DIR="/var/backups/ctfd"
-
-mkdir -p $BACKUP_DIR
-
-# Backup MySQL database
-docker exec ctfd-db-1 mysqldump -u ctfd -pctfd_password ctfd > $BACKUP_DIR/ctfd_db_$DATE.sql
-
-# Compress backup
-gzip $BACKUP_DIR/ctfd_db_$DATE.sql
-
-# Keep only last 7 days of backups
-find $BACKUP_DIR -name "ctfd_db_*.sql.gz" -mtime +7 -delete
-
-echo "Backup completed: ctfd_db_$DATE.sql.gz"
-```
-
-### File Backup
+## 7. Shutdown
 
 ```bash
-# Backup uploads and logs
-tar -czf backup_ctfd_files_$(date +%Y%m%d).tar.gz \
-  ctfd/data/CTFd/uploads/ \
-  ctfd/data/CTFd/logs/
-
-# Backup to remote server (optional)
-rsync -avz backup_*.tar.gz user@backup-server:/backups/ctfd/
+bash stop.sh
 ```
-
-### Automated Backups with Cron
-
-```bash
-# Edit crontab
-crontab -e
-
-# Add daily backup at 2 AM
-0 2 * * * /path/to/backup.sh
-
-# Add weekly full backup on Sunday at 3 AM
-0 3 * * 0 /path/to/full-backup.sh
-```
-
-## Performance Tuning
-
-### Database Optimization
-
-Edit MySQL configuration in `ctfd/docker-compose.yml`:
-```yaml
-command: 
-  - --character-set-server=utf8mb4
-  - --collation-server=utf8mb4_unicode_ci
-  - --max_connections=200
-  - --innodb_buffer_pool_size=1G
-  - --query_cache_size=64M
-```
-
-### Redis Caching
-
-Ensure Redis is properly configured for caching:
-```yaml
-cache:
-  image: redis:7-alpine
-  command: redis-server --maxmemory 512mb --maxmemory-policy allkeys-lru
-```
-
-## Scaling
-
-### Horizontal Scaling
-
-For high-traffic events, scale CTFd workers:
-```bash
-# Scale to 4 workers
-docker-compose up -d --scale ctfd=4
-```
-
-### Load Balancer
-
-Add nginx load balancer configuration:
-```nginx
-upstream ctfd_backend {
-    least_conn;
-    server localhost:8000;
-    server localhost:8001;
-    server localhost:8002;
-    server localhost:8003;
-}
-
-server {
-    listen 443 ssl http2;
-    server_name ctf.yourdomain.com;
-
-    location / {
-        proxy_pass http://ctfd_backend;
-    }
-}
-```
-
-## Disaster Recovery
-
-### Recovery Steps
-
-1. **Stop all services**
-   ```bash
-   docker-compose down
-   ```
-
-2. **Restore database from backup**
-   ```bash
-   gunzip ctfd_db_20260214.sql.gz
-   docker exec -i ctfd-db-1 mysql -u ctfd -pctfd_password ctfd < ctfd_db_20260214.sql
-   ```
-
-3. **Restore files**
-   ```bash
-   tar -xzf backup_ctfd_files_20260214.tar.gz -C /
-   ```
-
-4. **Restart services**
-   ```bash
-   docker-compose up -d
-   ```
-
-5. **Verify functionality**
-   ```bash
-   curl http://localhost:8000
-   docker-compose ps
-   docker-compose logs
-   ```
-
-## Maintenance
-
-### Regular Updates
-
-```bash
-# Pull latest images
-docker-compose pull
-
-# Restart with new images
-docker-compose down
-docker-compose up -d
-
-# Clean up old images
-docker image prune -a
-```
-
-### Health Checks
-
-Add health checks to `docker-compose.yml`:
-```yaml
-services:
-  ctfd:
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-```
-
-### Log Rotation
-
-Configure log rotation:
-```bash
-# Create logrotate configuration
-sudo nano /etc/logrotate.d/ctfd
-```
-
-```
-/path/to/ctfd/data/CTFd/logs/*.log {
-    daily
-    rotate 7
-    compress
-    delaycompress
-    missingok
-    notifempty
-}
-```
-
-## Production Tips
-
-1. **Use environment variables** for sensitive data
-2. **Enable rate limiting** in CTFd admin panel
-3. **Monitor disk space** regularly
-4. **Set up alerting** for critical issues
-5. **Test backups** regularly
-6. **Document your setup** for team reference
-7. **Keep services updated** with security patches
-8. **Use strong passwords** for all accounts
-9. **Limit SSH access** to specific IPs
-10. **Review logs** regularly for suspicious activity
-
-## Support and Resources
-
-- [CTFd Official Documentation](https://docs.ctfd.io/)
-- [Docker Security Best Practices](https://docs.docker.com/engine/security/)
-- [OWASP Security Guidelines](https://owasp.org/)
-
-For additional help, consult the [Installation Guide](INSTALLATION.md) or open an issue on GitHub.

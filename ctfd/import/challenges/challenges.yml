@@ -11,7 +11,7 @@ challenges:
       Flag format: HYVE_CTF{CITY_COUNTRY_LANDMARK_HASH}
       Example: HYVE_CTF{LONDON_UK_BIGBEN_HASH}
 
-      Download the image from: http://192.168.1.50:8082/files/osint/mystery_location.jpg
+      Download the image from: http://localhost:8082/files/osint/mystery_location.jpg
       
       **Note:** You must be logged in and assigned to a team to download files.
     value: 100
@@ -35,8 +35,8 @@ challenges:
       
       Hint: The password is in the provided wordlist (which is now shorter for your convenience).
       
-      Download the image from: http://192.168.1.50:8082/files/stego/cat.jpeg
-      Download the wordlist from: http://192.168.1.50:8082/files/stego/wordlist.txt
+      Download the image from: http://localhost:8082/files/stego/cat.jpeg
+      Download the wordlist from: http://localhost:8082/files/stego/wordlist.txt
       
       **Note:** Files are team-specific. You must be logged in to download.
     value: 100

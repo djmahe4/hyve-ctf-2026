@@ -105,40 +105,47 @@ def setup_ctfd():
     start_time = datetime.datetime.now(datetime.UTC) + timedelta(minutes=CTF_START_OFFSET_MINUTES)
     end_time = start_time + timedelta(hours=CTF_DURATION_HOURS)
     
-    # Setup payload
+    # Setup payload - CTFd minimal setup requirements
+    # Newer CTFd versions might require mode/user/event in one go, but let's be robust
     setup_data = {
         'nonce': nonce,
         'ctf_name': 'Hivye CTF 2026',
         'ctf_description': 'Bistro-themed Capture The Flag',
-        'user_mode': 'teams',  # Enable team mode
+        'user_mode': 'teams',
         'name': 'admin',
         'email': 'admin@hyve-ctf.local',
-        'password': 'admin123',  # Change this!
+        'password': 'admin123',
         'ctf_logo': '',
         'ctf_banner': '',
         'ctf_small_icon': '',
         'ctf_theme': 'core',
         'theme_color': '',
-        'start': start_time.strftime('%Y-%m-%dT%H:%M:%S'),
-        'end': end_time.strftime('%Y-%m-%dT%H:%M:%S'),
-        'nonce': nonce
+        'start': start_time.strftime('%Y-%m-%d %H:%M:%S'), # Try standard format
+        'end': end_time.strftime('%Y-%m-%d %H:%M:%S')
     }
     
-    response = session.post(f"{CTFD_URL}/setup", data=setup_data)
-    
-    if response.status_code == 200 and 'login' in response.url:
-        print(f"[✓] CTFd configured successfully!")
-        print(f"    Admin: admin / admin123")
-        print(f"    Start: {start_time.strftime('%Y-%m-%d %H:%M:%S')} UTC")
-        print(f"    End: {end_time.strftime('%Y-%m-%d %H:%M:%S')} UTC")
-        return session, {
-            'username': 'admin',
-            'password': 'admin123',
-            'start': start_time,
-            'end': end_time
-        }
-    else:
-        print("[✗] Setup failed!")
+    # Try the setup
+    try:
+        response = session.post(f"{CTFD_URL}/setup", data=setup_data, allow_redirects=False)
+        
+        # Check for successful install (redirect to root or login)
+        if response.status_code == 302 or (response.status_code == 200 and 'login' in response.url):
+            print(f"[✓] CTFd configured successfully!")
+            print(f"    Admin: admin / admin123")
+            print(f"    Start: {start_time.strftime('%Y-%m-%d %H:%M:%S')} UTC")
+            print(f"    End: {end_time.strftime('%Y-%m-%d %H:%M:%S')} UTC")
+            return session, {
+                'username': 'admin',
+                'password': 'admin123',
+                'start': start_time,
+                'end': end_time
+            }
+        else:
+            print(f"[✗] Setup failed with status code: {response.status_code}")
+            print(f"    Response text preview: {response.text[:500]}...")
+            return session, None
+    except Exception as e:
+        print(f"[✗] Setup exception: {e}")
         return session, None
 
 def login(session, username, password):

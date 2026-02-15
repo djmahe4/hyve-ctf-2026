@@ -63,12 +63,12 @@ class DecayChallengeValue(BaseChallenge):
     templates = {
         "create": "/plugins/DynamicXORKey/assets/create.html",
         "update": "/plugins/DynamicXORKey/assets/update.html",
-        "view": "/plugins/DynamicXORKey/assets/view.html",
+        "modal": "/plugins/DynamicXORKey/assets/modal.html",
     }
     scripts = {
         "create": "/plugins/DynamicXORKey/assets/create.js",
         "update": "/plugins/DynamicXORKey/assets/update.js",
-        "view": "/plugins/DynamicXORKey/assets/view.js",
+        "modal": "/plugins/DynamicXORKey/assets/modal.js",
     }
 
     @staticmethod

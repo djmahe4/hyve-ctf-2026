@@ -9,7 +9,8 @@ import sys
 import time
 import argparse
 import shutil
-from datetime import datetime, timedelta
+from datetime import timedelta
+import datetime
 from pathlib import Path
 import subprocess
 import os
@@ -67,10 +68,32 @@ def setup_ctfd():
     
     # Get setup page for nonce
     session = requests.Session()
-    setup_page = session.get(f"{CTFD_URL}/setup")
+    setup_page = None
     
-    if "Setup" not in setup_page.text:
-        print("[!] CTFd already configured. Skipping setup...")
+    # Retry getting setup page (handles 500 errors during init)
+    print("    Waiting for setup page...")
+    for i in range(30):
+        try:
+            resp = session.get(f"{CTFD_URL}/setup", timeout=5)
+            if resp.status_code == 200:
+                setup_page = resp
+                break
+            elif resp.status_code == 302:
+                # Redirect means already setup
+                setup_page = resp
+                break
+            else:
+                print(f"    . Status: {resp.status_code} (retrying...)")
+        except Exception as e:
+            print(f"    . Connection failed: {e}")
+        time.sleep(2)
+    
+    if not setup_page:
+        print("[✗] Could not access setup page")
+        return session, None
+
+    if "Setup" not in setup_page.text and setup_page.status_code != 200:
+        print("[!] CTFd already configured or unavailable. Skipping setup...")
         return session, None
     
     # Extract nonce from form

@@ -1,6 +1,6 @@
 from CTFd.plugins import register_plugin_assets_directory
 from CTFd.plugins.challenges import CHALLENGE_CLASSES, BaseChallenge
-from CTFd.plugins.keys import KEY_CLASSES, BaseKey
+from CTFd.plugins.flags import FLAG_CLASSES, BaseFlag
 from CTFd.models import db, Challenges, Solves, Keys
 from CTFd.utils.user import get_current_team, get_current_user
 from CTFd.utils import config as ctfd_config
@@ -9,7 +9,7 @@ import re
 import time
 import hashlib
 
-class DynamicXORKey(BaseKey):
+class DynamicXORKey(BaseFlag):
     id = 10  # Custom ID
     name = "dynamic_xor"
 
@@ -113,6 +113,6 @@ class DecayChallengeValue(BaseChallenge):
 
 def load(app):
     app.db.create_all()
-    KEY_CLASSES["dynamic_xor"] = DynamicXORKey
+    FLAG_CLASSES["dynamic_xor"] = DynamicXORKey
     CHALLENGE_CLASSES["decay"] = DecayChallengeValue
     register_plugin_assets_directory(app, base_path="/plugins/DynamicXORKey/assets/")

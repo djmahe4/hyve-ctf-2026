@@ -305,6 +305,7 @@ def create_teams(token, participant_count, create_admin_team=True):
         team_data = {
             "name": team_name,
             "email": email, # Team email can be same as user
+            "password": password
         }
         team = _api_post("teams", team_data, f"Team {team_name}")
 
@@ -343,6 +344,7 @@ def create_teams(token, participant_count, create_admin_team=True):
         team_data = {
             "name": team_name,
             "email": email,
+            "password": password,
             "affiliation": "Admin"
         }
         team = _api_post("teams", team_data, "Admin Test Team")

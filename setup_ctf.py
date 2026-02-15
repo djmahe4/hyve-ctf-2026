@@ -82,6 +82,9 @@ def setup_ctfd():
                 # Redirect means already setup
                 setup_page = resp
                 break
+            elif resp.status_code == 500:
+                setup_page = resp
+                break
             else:
                 print(f"    . Status: {resp.status_code} (retrying...)")
         except Exception as e:
@@ -192,11 +195,10 @@ def get_api_token(session):
         from bs4 import BeautifulSoup
         soup = BeautifulSoup(settings_page.text, 'html.parser')
         
-        # 1. Try meta tag (standard in newer themes)
-        meta = soup.find('meta', {'name': 'csrf-token'})
-        if meta:
-            csrf_token = meta['content']
-            # print(f"    Found CSRF token in meta tag")
+        r = session.get(f"{CTFD_URL}/login")
+        soup = BeautifulSoup(r.text, "html.parser")
+        csrf = soup.find("input", {"name": "nonce"})["value"]
+
             
         # 2. Try hidden input (older themes)
         if not csrf_token:
@@ -441,8 +443,8 @@ Examples:
             sys.exit(1)
     
     # Step 1: Wait for CTFd
-    if not wait_for_ctfd():
-        sys.exit(1)
+    # if not wait_for_ctfd():
+    #     sys.exit(1)
     
     # Step 2: Setup CTFd (pass timing config)
     #global CTF_DURATION_HOURS, CTF_START_OFFSET_MINUTES

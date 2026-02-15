@@ -183,23 +183,74 @@ def get_api_token(session):
     """Generate API token"""
     print("\n[*] Generating API token...")
     
+    # Strategy 1: Get CSRF token from settings page
+    csrf_token = None
+    try:
+        settings_page = session.get(f"{CTFD_URL}/settings")
+        # print(f"    Settings page status: {settings_page.status_code}")
+        
+        from bs4 import BeautifulSoup
+        soup = BeautifulSoup(settings_page.text, 'html.parser')
+        
+        # 1. Try meta tag (standard in newer themes)
+        meta = soup.find('meta', {'name': 'csrf-token'})
+        if meta:
+            csrf_token = meta['content']
+            # print(f"    Found CSRF token in meta tag")
+            
+        # 2. Try hidden input (older themes)
+        if not csrf_token:
+            inp = soup.find('input', {'name': 'nonce'})
+            if inp:
+                csrf_token = inp['value']
+                # print(f"    Found CSRF token in input")
+                
+        # 3. Try parsing from script tag (var csrf_token = "...")
+        if not csrf_token:
+            import re
+            match = re.search(r'csrf_nonce\s*=\s*"([^"]+)"', settings_page.text)
+            if match:
+                csrf_token = match.group(1)
+                # print(f"    Found CSRF token in script variable")
+
+    except Exception as e:
+        print(f"    Error extracting CSRF: {e}")
+
+    if not csrf_token:
+        print("    [!] Could not find CSRF token. API creation might fail.")
+        csrf_token = ''
+
     # Create token via API
     token_data = {
         'description': 'Auto-generated setup token',
-        'expiration': None  # No expiration
+        'expiration': None
     }
     
-    response = session.post(
-        f"{CTFD_URL}/api/v1/tokens",
-        json=token_data
-    )
+    headers = {
+        'Content-Type': 'application/json',
+        'CSRF-Token': csrf_token
+    }
     
-    if response.status_code == 200:
-        token = response.json()['data']['value']
-        print(f"[✓] Token generated: {token[:20]}...")
-        return token
-    else:
-        print("[✗] Token generation failed")
+    try:
+        response = session.post(
+            f"{CTFD_URL}/api/v1/tokens",
+            json=token_data,
+            headers=headers
+        )
+        
+        if response.status_code == 200:
+            resp_json = response.json()
+            if 'success' in resp_json and resp_json['success']:
+                token = resp_json['data']['value']
+                print(f"[✓] Token generated: {token[:20]}...")
+                return token
+        
+        print(f"[✗] Token generation failed. Status: {response.status_code}")
+        # print(f"    Response: {response.text[:200]}")
+        return None
+        
+    except Exception as e:
+        print(f"[✗] Token generation exception: {e}")
         return None
 
 def create_teams(session, participant_count, create_admin_team=True):

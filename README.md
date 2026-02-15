@@ -31,12 +31,14 @@ Hivye CTF 2026 is a beginner to intermediate level CTF competition designed to t
 git clone https://github.com/djmahe4/hyve-ctf-2026.git
 cd hyve-ctf-2026
 
-# Run the setup script
+# Run the setup script (Automates venv and requirements.txt)
 chmod +x setup.sh
 ./setup.sh
 
 # Or start manually
-chmod +x start.sh
+uv venv
+source .venv/bin/activate # or .venv/Scripts/activate for Windows
+uv pip install -r requirements.txt
 ./start.sh
 ```
 

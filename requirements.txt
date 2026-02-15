@@ -1,0 +1,5 @@
+flask
+scapy
+sqlite3
+requests
+python-dotenv

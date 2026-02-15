@@ -11,16 +11,23 @@ import os
 app = Flask(__name__)
 app.secret_key = 'bistro_secret_key'
 
-# Flag environment variables
-FLAG_SQL_INJECTION = os.environ.get('FLAG_SQL_INJECTION', 'HYVE_CTF{sql_1nj3ct10n_b4s1c_HASH}')
-FLAG_COOKIE_MANIP = os.environ.get('FLAG_COOKIE_MANIP', 'HYVE_CTF{c00k13_m4n1pul4t10n_HASH}')
-FLAG_XSS = os.environ.get('FLAG_XSS', 'HYVE_CTF{xss_r3fl3ct3d_vuln_HASH}')
-FLAG_IDOR = os.environ.get('FLAG_IDOR', 'HYVE_CTF{1d0r_pr1v_3sc4l4t10n_HASH}')
-FLAG_SOURCE_DIVER = os.environ.get('FLAG_SOURCE_DIVER', 'HYVE_CTF{html_embedded_flag_HASH}')
+# Flag environment variables (Baselines)
+BASE_SQL_INJECTION = "sql_1nj3ct10n_b4s1c"
+BASE_COOKIE_MANIP = "c00k13_m4n1pul4t10n"
+BASE_XSS = "xss_r3fl3ct3d_vuln"
+BASE_IDOR = "1d0r_pr1v_3sc4l4t10n"
+BASE_SOURCE_DIVER = "html_embedded_flag"
+
+from utils.flag_gen import get_flag
+
+def get_current_team_id():
+    # In a real CTFd deployment with a reverse proxy, we'd get this from a header
+    # or the CTFd session. For simulation/testing, we'll use a cookie or param.
+    return request.args.get('team_id') or request.cookies.get('team_id', '1')
 
 # Memes
 GIF_SUCCESS = "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJqZ3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5/mm0JgrgE2LBXq/giphy.gif" # Hackerman
-GIF_FAILURE = "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJqZ3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5/vB6K45Q0uUqPa/giphy.gif" # Ah Ah Ah
+GIF_FAILURE = "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJqZ3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5/vB6K45Q0uUqPa/giphy.gif" # Ah Ah Ah
 
 # Layout CSS
 COMMON_CSS = """
@@ -34,7 +41,7 @@ COMMON_CSS = """
     .nav { margin-bottom: 30px; border-bottom: 2px solid #ffcc00; padding-bottom: 15px; }
     .nav a { color: #ffcc00; margin-right: 20px; text-decoration: none; font-weight: bold; }
     .nav a:hover { color: #fff; }
-    .footer { margin-top: 50px; font-size: 0.8em; color: #666; text-align: center; }
+    .footer { font-size: 0.8em; color: #666; text-align: center; margin-top: 50px; }
 """
 
 # Home Page Template
@@ -65,7 +72,7 @@ INDEX_TEMPLATE = """
     </div>
     <div class="footer">
         © 2026 Hyve Bistro. All rights reserved. 
-        <!-- HYVE_CTF{source_code_diver_FAKEHASH} -->
+        <!-- {{ fake_flag }} -->
     </div>
 </body>
 </html>
@@ -128,6 +135,7 @@ PROFILE_TEMPLATE = """
         <img src="{{ gif }}" class="meme">
         {% endif %}
     </div>
+    <div class="footer">Team ID: {{ team_id }} (Used for dynamic flag generation)</div>
 </body>
 </html>
 """
@@ -158,7 +166,7 @@ STAFF_LOGIN_TEMPLATE = """
 </html>
 """
 
-# Source/Secret Template
+# Secret Template
 SECRET_TEMPLATE = """
 <!DOCTYPE html>
 <html>
@@ -177,7 +185,7 @@ SECRET_TEMPLATE = """
             <li>Artisanal Cookies</li>
         </ul>
     </div>
-    <!-- HYVE_CTF{you_found_it}_FAKEHASH -->
+    <!-- {{ fake_flag }} -->
     <div id="ingredient-vault" data-recipe-secret="{{ flag }}" class="hidden"></div>
     <script>
         console.log("Vault loaded. Key in container metadata.");
@@ -188,23 +196,27 @@ SECRET_TEMPLATE = """
 
 @app.route('/')
 def index():
-    return INDEX_TEMPLATE
+    team_id = get_current_team_id()
+    fake_flag = get_flag("source_code_diver", team_id) + "_FAKE"
+    return render_template_string(INDEX_TEMPLATE, fake_flag="HYVE_CTF{source_code_diver_FAKEHASH}")
 
 @app.route('/menu')
 def menu_page():
-    return render_template_string(MENU_TEMPLATE)
+    return render_template_string(MENU_TEMPLATE, query="")
 
 @app.route('/menu-search')
 def menu_search():
     query = request.args.get('q', '')
-    if '<script>' in query.lower() and 'alert' in query.lower():
+    team_id = get_current_team_id()
+    if '<script>' in query.lower() and ('alert' in query.lower() or 'console.log' in query.lower()):
+        flag = get_flag(BASE_XSS, team_id)
         return f"""
         <html><head><style>{COMMON_CSS}</style></head>
         <body>
             <div class="card" style="text-align:center;">
                 <h2>XSS ALERT! BISTRO HACKED!</h2>
-                <p>Waitstaff alerted. Reward token revealed:</p>
-                <div style="font-size: 1.5em; color: lime;">{FLAG_XSS}</div>
+                <p>Waitstaff alerted. Reward token revealed for Team {team_id}:</p>
+                <div style="font-size: 1.5em; color: lime;">{flag}</div>
                 <img src="{GIF_SUCCESS}" class="meme">
                 <br><br><a href="/" class="btn">ABORT</a>
             </div>
@@ -214,6 +226,7 @@ def menu_search():
 
 @app.route('/staff-login', methods=['GET', 'POST'])
 def staff_login():
+    team_id = get_current_team_id()
     if request.method == 'GET':
         return render_template_string(STAFF_LOGIN_TEMPLATE)
     
@@ -230,7 +243,8 @@ def staff_login():
         conn.close()
         
         if user:
-            message = f"Welcome back, Captain. Here is your bypass token: {FLAG_SQL_INJECTION}"
+            flag = get_flag(BASE_SQL_INJECTION, team_id)
+            message = f"Welcome back, Captain. Here is your bypass token: {flag}"
             return render_template_string(STAFF_LOGIN_TEMPLATE, message=message, success=True)
         else:
             message = "ACCESS DENIED: Credentials mismatch. Magic word needed?"
@@ -240,29 +254,37 @@ def staff_login():
 
 @app.route('/profile')
 def profile_page():
+    team_id = get_current_team_id()
     role = request.cookies.get('role', 'user')
     is_admin = (role == 'admin')
-    gif = GIF_SUCCESS if is_admin else "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJqZ3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5/vB6K45Q0uUqPa/giphy.gif"
+    flag = get_flag(BASE_COOKIE_MANIP, team_id)
+    gif = GIF_SUCCESS if is_admin else GIF_FAILURE
     
     response = make_response(
         render_template_string(
             PROFILE_TEMPLATE,
             role=role,
             is_admin=is_admin,
-            flag=FLAG_COOKIE_MANIP,
-            gif=gif
+            flag=flag,
+            gif=gif,
+            team_id=team_id
         )
     )
     if not request.cookies.get('role'):
         response.set_cookie('role', 'user')
+    if not request.cookies.get('team_id'):
+        response.set_cookie('team_id', team_id)
     return response
 
 @app.route('/secret-ingredients')
 def secret_ingredients():
-    return render_template_string(SECRET_TEMPLATE, flag=FLAG_SOURCE_DIVER)
+    team_id = get_current_team_id()
+    flag = get_flag(BASE_SOURCE_DIVER, team_id)
+    return render_template_string(SECRET_TEMPLATE, flag=flag, fake_flag="HYVE_CTF{you_found_it}_FAKEHASH")
 
 @app.route('/api/order/tracking/<int:order_id>')
 def track_order(order_id):
+    team_id = get_current_team_id()
     # IDOR VULNERABLE
     try:
         conn = sqlite3.connect('ctf.db')
@@ -271,13 +293,13 @@ def track_order(order_id):
         record = cursor.fetchone()
         conn.close()
         if record:
-            # Mask sensitive data for non-admins, but the IDOR logic allows viewing ID=1 (Admin)
-            if record[0] == 1:
+            if record[0] == 1: # Admin Order
+                flag = get_flag(BASE_IDOR, team_id)
                 return jsonify({
                     'order_id': order_id,
                     'customer': record[1],
                     'email': record[2],
-                    'secret_note': record[3] # THE FLAG
+                    'secret_note': flag 
                 })
             else:
                 return jsonify({
@@ -291,4 +313,13 @@ def track_order(order_id):
         return jsonify({'error': 'Server Error'}), 500
 
 if __name__ == '__main__':
+    # Initialize DB with some fake data if not exists
+    if not os.path.exists('ctf.db'):
+        conn = sqlite3.connect('ctf.db')
+        cursor = conn.cursor()
+        cursor.execute("CREATE TABLE users (id INTEGER PRIMARY KEY, username TEXT, password TEXT, email TEXT, secret TEXT)")
+        cursor.execute("INSERT INTO users VALUES (1, 'admin', 'complex_password_123', 'admin@hyvebistro.ctf', 'HYVE_CTF{placeholder}')")
+        cursor.execute("INSERT INTO users VALUES (1001, 'guest', 'guest', 'guest@example.com', 'No secrets here')")
+        conn.commit()
+        conn.close()
     app.run(host='0.0.0.0', port=8080, debug=True)

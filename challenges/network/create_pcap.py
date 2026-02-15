@@ -5,10 +5,19 @@ Create PCAP file with FTP credentials for CTF challenge
 
 from scapy.all import *
 import random
+import sys
+import os
 
-def create_pcap():
+# Import our flag generator
+sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
+from utils.flag_gen import get_flag
+
+def create_pcap(output_file, team_id="1"):
     """Generate PCAP file with FTP traffic containing flag"""
     packets = []
+    
+    # Generate the dynamic flag for this team
+    flag = get_flag("cl34rt3xt_cr3ds_f0und", team_id)
     
     # FTP client and server IPs
     client_ip = "192.168.1.100"

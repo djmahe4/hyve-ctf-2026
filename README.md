@@ -54,7 +54,7 @@ pip install -r requirements.txt
 
 ### Access the Platform
 
-- **CTFd Platform**: http://localhost:8000
+- **CTFd Platform**: http://localhost:8001
 - **Web Challenges**: http://localhost:8080
 - **File Server**: http://localhost:8081
 

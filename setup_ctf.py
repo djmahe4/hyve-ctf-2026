@@ -363,7 +363,7 @@ Examples:
         sys.exit(1)
     
     # Step 2: Setup CTFd (pass timing config)
-    global CTF_DURATION_HOURS, CTF_START_OFFSET_MINUTES
+    #global CTF_DURATION_HOURS, CTF_START_OFFSET_MINUTES
     session, config = setup_ctfd()
     
     if not config:

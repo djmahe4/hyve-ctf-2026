@@ -46,7 +46,7 @@ challenges:
       - location: /challenges/stego/cat.jpeg
       - location: /challenges/stego/wordlist.txt
     hints:
-      - content: "The password is the year '2026' transposition-ciphered."
+      - content: "The password is recently released in the CTF."
         cost: 20
 
   - name: "Bistro Menu Cipher"
@@ -118,8 +118,8 @@ challenges:
   - name: "Chef's Secret Recipe"
     category: Cryptography
     description: |
-      The Chef encoded his secret recipe multiple times.
-      Encoded string: VTBGTVIxdGlZWE5sTmpSZlpHVmpiMlJsWkY5emRXTmpaWE56TG5SMGVIUT0=
+      The Chef encoded his secret recipe.
+      Encoded string: V1cxR2VscFVXVEJZTWxKc1dUSTVhMXBYVW1aak0xWnFXVEpXZW1ONU5UQmxTRkU5
     value: 200
     type: decay
     state: visible

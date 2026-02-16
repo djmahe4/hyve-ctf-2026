@@ -16,46 +16,26 @@ class DynamicXORKey(BaseFlag):
     @staticmethod
     def compare(saved, provided):
         """
-        Expects provided format: HYVE_CTF{content_HASH}
-        saved: The base flag content (without the format wrapper and hash)
+        Expects provided format: HYVE_CTF{content}
+        saved: The base flag content (without the format wrapper)
         """
-        # 1. Regex to extract content and hash from provided string
-        # Provided: HYVE_CTF{CONTENT_HEXHASH}
-        match_provided = re.match(r"HYVE_CTF\{(.+)_([0-9a-f]{8})\}", provided)
+        # 1. Regex to extract content from provided string
+        # Provided: HYVE_CTF{CONTENT}
+        match_provided = re.match(r"HYVE_CTF\{(.+)\}", provided)
         if not match_provided:
             return False
         
         provided_content = match_provided.group(1)
-        provided_hash = match_provided.group(2)
         
-        # 2. Extract content from saved flag (DB format: HYVE_CTF{CONTENT_HASH})
-        match_saved = re.match(r"HYVE_CTF\{(.+)_HASH\}", saved)
+        # 2. Extract content from saved flag (which might be just content or wrapped)
+        match_saved = re.match(r"HYVE_CTF\{(.+)\}", saved)
         if match_saved:
             saved_content = match_saved.group(1)
         else:
-            # Fallback: maybe saved is just the content?
             saved_content = saved
 
         # 3. Check if content matches base flag
-        if provided_content != saved_content:
-            return False
-            
-        # 3. Generate expected hash
-        team = get_current_team()
-        user = get_current_user()
-        identifier = str(team.id if team else user.id)
-        
-        secret = ctfd_config.get_config("secret_flag_key") or "default_secret"
-        
-        # Simple XOR hashing as requested
-        input_str = f"{saved_content}|{identifier}|{secret}"
-        xor_result = 0
-        for char in input_str:
-            xor_result ^= ord(char)
-        
-        expected_hash = format(xor_result, '08x')
-        
-        return provided_hash == expected_hash
+        return provided_content == saved_content
 
 class DecayChallenge(Challenges):
     __mapper_args__ = {"polymorphic_identity": "decay"}

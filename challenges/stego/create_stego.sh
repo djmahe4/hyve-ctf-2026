@@ -1,6 +1,6 @@
 #!/bin/bash
 # Create steganography challenge image with hidden flag
-# Flag format: HYVE_CTF{content_HASH}
+# Flag format: HYVE_CTF{content}
 
 set -e
 
@@ -30,4 +30,4 @@ echo "[+] Done! cat.jpeg updated for Team $TEAM_ID"
 echo "Steganography challenge created successfully!"
 echo "Image: cat.jpeg"
 echo "Wordlist: wordlist.txt (contains transposition-ciphered password)"
-echo "Hidden message: HYVE_CTF{st3g0_cat_m4st3r_HASH}"
+echo "Hidden message: HYVE_CTF{st3g0_cat_m4st3r}"

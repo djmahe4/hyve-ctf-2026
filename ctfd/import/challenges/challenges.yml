@@ -6,10 +6,10 @@ challenges:
     description: |
       Our secret bistro location is hidden in this image. Can you find where we are located?
       
-      <!-- HYVE_CTF{not_this_one}_FAKEHASH -->
+      <!-- HYVE_CTF{not_this_one} -->
 
-      Flag format: HYVE_CTF{CITY_COUNTRY_LANDMARK_HASH}
-      Example: HYVE_CTF{LONDON_UK_BIGBEN_HASH}
+      Flag format: HYVE_CTF{CITY_COUNTRY_LANDMARK}
+      Example: HYVE_CTF{LONDON_UK_BIGBEN}
 
       Download the image from: http://localhost:8082/files/osint/mystery_location.jpg
       
@@ -19,7 +19,7 @@ challenges:
     state: visible
     max_attempts: 0
     flags:
-      - flag: "HYVE_CTF{PARIS_FRANCE_EIFFELTOWER_HASH}"
+      - flag: "HYVE_CTF{PARIS_FRANCE_EIFFELTOWER}"
         type: dynamic_xor
     files:
       - location: /challenges/osint/mystery_location.jpg
@@ -44,7 +44,7 @@ challenges:
     state: visible
     max_attempts: 0
     flags:
-      - flag: "HYVE_CTF{st3g0_cat_m4st3r_HASH}"
+      - flag: "HYVE_CTF{st3g0_cat_m4st3r}"
         type: dynamic_xor
     files:
       - location: /challenges/stego/cat.jpeg
@@ -67,7 +67,7 @@ challenges:
     state: visible
     max_attempts: 0
     flags:
-      - flag: "HYVE_CTF{caesar_is_too_weak_HASH}"
+      - flag: "HYVE_CTF{caesar_is_too_weak}"
         type: dynamic_xor
 
   - name: "Staff Portal Bypass"
@@ -82,7 +82,7 @@ challenges:
     state: visible
     max_attempts: 0
     flags:
-      - flag: "HYVE_CTF{sql_1nj3ct10n_b4s1c_HASH}"
+      - flag: "HYVE_CTF{sql_1nj3ct10n_b4s1c}"
         type: dynamic_xor
     hints:
       - content: "Standard SQLi characters like ' might break the query."
@@ -98,7 +98,7 @@ challenges:
     state: visible
     max_attempts: 0
     flags:
-      - flag: "HYVE_CTF{c00k13_m4n1pul4t10n_HASH}"
+      - flag: "HYVE_CTF{c00k13_m4n1pul4t10n}"
         type: dynamic_xor
     hints:
       - content: "Check your cookies. Can you change your role?"
@@ -116,7 +116,7 @@ challenges:
     state: visible
     max_attempts: 0
     flags:
-      - flag: "HYVE_CTF{cl34rt3xt_cr3ds_f0und_HASH}"
+      - flag: "HYVE_CTF{cl34rt3xt_cr3ds_f0und}"
         type: dynamic_xor
     files:
       - location: /challenges/network/cleartext_traffic.pcap
@@ -131,7 +131,7 @@ challenges:
     state: visible
     max_attempts: 0
     flags:
-      - flag: "HYVE_CTF{base64_decoded_success_HASH}"
+      - flag: "HYVE_CTF{base64_decoded_success}"
         type: dynamic_xor
 
   - name: "Menu Search Vulnerability"
@@ -146,7 +146,7 @@ challenges:
     state: visible
     max_attempts: 0
     flags:
-      - flag: "HYVE_CTF{xss_r3fl3ct3d_vuln_HASH}"
+      - flag: "HYVE_CTF{xss_r3fl3ct3d_vuln}"
         type: dynamic_xor
 
   - name: "Order Tracking Exploit"
@@ -161,7 +161,7 @@ challenges:
     state: visible
     max_attempts: 0
     flags:
-      - flag: "HYVE_CTF{1d0r_pr1v_3sc4l4t10n_HASH}"
+      - flag: "HYVE_CTF{1d0r_pr1v_3sc4l4t10n}"
         type: dynamic_xor
 
   - name: "Ingredient Source Diver"
@@ -174,7 +174,7 @@ challenges:
     state: visible
     max_attempts: 0
     flags:
-      - flag: "HYVE_CTF{html_embedded_flag_HASH}"
+      - flag: "HYVE_CTF{html_embedded_flag}"
         type: dynamic_xor
 
 

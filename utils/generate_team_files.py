@@ -76,7 +76,7 @@ def generate_osint_challenge(team_id, team_dir):
     landmark = LANDMARKS[team_id % len(LANDMARKS)]
     
     # 2. Generate Flag
-    # Flag format: HYVE_CTF{CITY_COUNTRY_LANDMARK_HASH}
+    # Flag format: HYVE_CTF{CITY_COUNTRY_LANDMARK}
     # We construct the base prompt from keywords
     base_prompt = "_".join(landmark["keywords"])
     flag = get_flag(base_prompt, str(team_id))
@@ -338,7 +338,7 @@ def main():
         print(f"    │   ├── osint/mystery_location.jpg")
         print(f"    │   ├── stego/cat.jpeg (team-specific flag)")
         print(f"    │   ├── stego/wordlist.txt")
-        print(f"    │   └── network/cleartext_traffic.pcap (team-specific flag)")
+        print(f"    │   └── network/cleartext_traffic.pcap (static flag)")
 
 
 if __name__ == '__main__':

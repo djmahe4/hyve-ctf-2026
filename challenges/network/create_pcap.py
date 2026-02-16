@@ -18,7 +18,7 @@ def create_pcap(output_file="cleartext_traffic.pcap", team_id="1"):
     
     # Generate flags
     flag = get_flag("cl34rt3xt_cr3ds_f0und", team_id)
-    fake_flag = "HYVE_CTF{cl34rt3xt_cr3ds_f0und_FAKEHASH}"
+    fake_flag = "HYVE_CTF{cl34rt3xt_cr3ds_f0und_FAKE}"
     
     # Known IPs
     GOOGLE_IPS = ["142.250.190.46", "172.217.16.142"]

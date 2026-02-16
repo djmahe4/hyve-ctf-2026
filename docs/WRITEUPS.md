@@ -38,7 +38,7 @@ Complete solutions for all 10 challenges in Hivye CTF 2026.
 
 8. The extracted file contains the full flag with the hash.
 
-**Flag**: `HYVE_CTF{PARIS_FRANCE_EIFFELTOWER_HASH}`
+**Flag**: `HYVE_CTF{PARIS_FRANCE_EIFFELTOWER}`
 
 ---
 
@@ -63,7 +63,7 @@ Complete solutions for all 10 challenges in Hivye CTF 2026.
 
 5. The tool extracts a file containing the team-specific flag
 
-**Flag**: `HYVE_CTF{st3g0_cat_m4st3r_HASH}`
+**Flag**: `HYVE_CTF{st3g0_cat_m4st3r}`
 
 ---
 
@@ -89,7 +89,7 @@ Complete solutions for all 10 challenges in Hivye CTF 2026.
 
 4. Or use online tool: https://rot13.com
 
-**Flag**: `HYVE_CTF{caesar_is_too_weak_HASH}`
+**Flag**: `HYVE_CTF{caesar_is_too_weak}`
 
 ---
 
@@ -116,7 +116,7 @@ Complete solutions for all 10 challenges in Hivye CTF 2026.
 
 6. Successfully logged in, flag is displayed
 
-**Flag**: `HYVE_CTF{sql_1nj3ct10n_b4s1c_HASH}`
+**Flag**: `HYVE_CTF{sql_1nj3ct10n_b4s1c}`
 
 ---
 
@@ -144,7 +144,7 @@ Complete solutions for all 10 challenges in Hivye CTF 2026.
 
 8. Flag is now visible
 
-**Flag**: `HYVE_CTF{c00k13_m4n1pul4t10n_HASH}`
+**Flag**: `HYVE_CTF{c00k13_m4n1pul4t10n}`
 
 ---
 
@@ -172,12 +172,12 @@ Complete solutions for all 10 challenges in Hivye CTF 2026.
 
 5. Find the PASS command containing the flag:
    ```
-   PASS HYVE_CTF{cl34rt3xt_cr3ds_f0und_HASH}
+   PASS HYVE_CTF{cl34rt3xt_cr3ds_f0und}
    ```
 
 6. Alternatively, follow TCP stream of FTP packets
 
-**Flag**: `HYVE_CTF{cl34rt3xt_cr3ds_f0und_HASH}`
+**Flag**: `HYVE_CTF{cl34rt3xt_cr3ds_f0und}`
 
 ---
 
@@ -213,7 +213,7 @@ Complete solutions for all 10 challenges in Hivye CTF 2026.
    echo "V1cxR2VscFVXVEJZTWxKc1dUSTVhMXBYVW1aak0xWnFXVEpXZW1ONU5UQmxTRkU5" | base64 -d | base64 -d | base64 -d
    ```
 
-**Flag**: `HYVE_CTF{base64_decoded_success_HASH}`
+**Flag**: `HYVE_CTF{base64_decoded_success}`
 
 ---
 
@@ -243,7 +243,7 @@ Complete solutions for all 10 challenges in Hivye CTF 2026.
 
 6. In a real scenario, this could steal cookies or execute malicious code
 
-**Flag**: `HYVE_CTF{xss_r3fl3ct3d_vuln_HASH}`
+**Flag**: `HYVE_CTF{xss_r3fl3ct3d_vuln}`
 
 ---
 
@@ -272,11 +272,11 @@ Complete solutions for all 10 challenges in Hivye CTF 2026.
      "order_id": 1,
      "customer": "admin",
      "email": "admin@hyvebistro.ctf",
-     "secret_note": "HYVE_CTF{1d0r_pr1v_3sc4l4t10n_HASH}"
+     "secret_note": "HYVE_CTF{1d0r_pr1v_3sc4l4t10n}"
    }
    ```
 
-**Flag**: `HYVE_CTF{1d0r_pr1v_3sc4l4t10n_HASH}`
+**Flag**: `HYVE_CTF{1d0r_pr1v_3sc4l4t10n}`
 
 ---
 
@@ -296,14 +296,14 @@ Complete solutions for all 10 challenges in Hivye CTF 2026.
 
 4. Find a hidden div with a data attribute:
    ```html
-   <div id="ingredient-vault" data-recipe-secret="HYVE_CTF{html_embedded_flag_HASH}" class="hidden"></div>
+   <div id="ingredient-vault" data-recipe-secret="HYVE_CTF{html_embedded_flag}" class="hidden"></div>
    ```
 
 5. The flag is embedded in the `data-recipe-secret` attribute
 
 6. Alternatively, use browser DevTools (F12) > Elements tab to inspect the DOM
 
-**Flag**: `HYVE_CTF{html_embedded_flag_HASH}`
+**Flag**: `HYVE_CTF{html_embedded_flag}`
 
 ---
 

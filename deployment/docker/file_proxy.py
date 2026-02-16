@@ -8,7 +8,10 @@ import requests
 import os
 from pathlib import Path
 
+import logging
+
 app = Flask(__name__)
+app.logger.setLevel(logging.DEBUG)
 
 # Configuration
 CTFD_URL = os.environ.get('CTFD_URL', 'http://ctfd:8000')
@@ -22,6 +25,10 @@ def get_team_id_from_session():
     """
     # Get session cookie from request
     session_cookie = request.cookies.get('session')
+    
+    # DEBUG LOGGING
+    app.logger.info(f"Request Headers: {request.headers}")
+    app.logger.info(f"Request Cookies: {request.cookies}")
     
     if not session_cookie:
         return None, "No session cookie found. Please log in to CTFd first."
@@ -135,4 +142,4 @@ if __name__ == '__main__':
         print(f"WARNING: Challenges directory not found: {CHALLENGES_DIR}")
         print("Make sure to mount the challenges volume correctly")
     
-    app.run(host='127.0.0.1', port=8082, debug=False)
+    app.run(host='0.0.0.0', port=8082, debug=True)

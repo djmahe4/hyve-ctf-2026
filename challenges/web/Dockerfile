@@ -5,17 +5,15 @@ WORKDIR /app
 # Install dependencies
 RUN pip install --no-cache-dir flask
 
-# Copy application files
-# Copy application files
-COPY challenges/web/app.py .
-COPY challenges/web/init_db.py .
-COPY utils/ /app/utils/
+# Create app directory
+WORKDIR /app
 
-# Initialize database
-RUN python init_db.py
+# Waiting entrypoint script
+COPY challenges/web/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 # Expose port
 EXPOSE 8080
 
-# Run application
-CMD ["python", "app.py"]
+# Run entrypoint script
+CMD ["/entrypoint.sh"]

@@ -6,9 +6,13 @@ set -e
 
 echo "Creating steganography challenge..."
 
-# Download a cat image from Pexels
-echo "Downloading cat image..."
-wget -q -O cat.jpeg "https://images.pexels.com/photos/1170986/pexels-photo-1170986.jpeg?auto=compress&cs=tinysrgb&w=800"
+# Download a cat image from Pexels (if not exists)
+if [ -f "cat.jpeg" ]; then
+    echo " Using local cat.jpeg"
+else
+    echo "Downloading cat image..."
+    wget -q -O cat.jpeg "https://images.pexels.com/photos/1170986/pexels-photo-1170986.jpeg?auto=compress&cs=tinysrgb&w=800"
+fi
 
 # Determine Team ID
 TEAM_ID=${TEAM_ID:-1}

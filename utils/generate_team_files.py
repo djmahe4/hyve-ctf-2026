@@ -72,8 +72,11 @@ def generate_osint_challenge(team_id, team_dir):
     """Generate dynamic OSINT challenge: Download image -> Embed GPS -> Embed Flag (Stego)"""
     print(f"[*] Generating OSINT challenge for Team {team_id}")
     
-    # 1. Select Landmark (Deterministic based on team_id)
-    landmark = LANDMARKS[team_id % len(LANDMARKS)]
+    # OSINT: Generate mystery location image
+    # FORCE STATIC: Always use Paris/Eiffel Tower to match challenges.yml static flag
+    # Finding the entry for Eiffel Tower
+    landmark = next((l for l in LANDMARKS if "EIFFELTOWER" in l["keywords"]), LANDMARKS[0])
+    print(f"  > Generating OSINT challenge (Landmark: {landmark['name']})...")
     
     # 2. Generate Flag
     # Flag format: HYVE_CTF{CITY_COUNTRY_LANDMARK}
@@ -81,36 +84,56 @@ def generate_osint_challenge(team_id, team_dir):
     base_prompt = "_".join(landmark["keywords"])
     flag = get_flag(base_prompt, str(team_id))
     
-    # 3. Download Image (Failover logic)
+    # 3. Use Local Image or Download (Failover logic)
     output_file = team_dir / "osint" / "mystery_location.jpg"
     
-    # Try downloading the selected landmark image first
+    # Check for local source image first
+    source_images_dir = CHALLENGES_DIR / "osint" / "source_images"
+    local_image_name = f"{landmark['name']}.jpg"
+    local_image_path = source_images_dir / local_image_name
+    
     download_success = False
     
-    # Create a list of candidates starting with the chosen one
-    candidates = [landmark] + [l for l in LANDMARKS if l != landmark]
-    
-    final_landmark = None
-    
-    for candidate in candidates:
-        print(f"  > Attempting download: {candidate['name']}")
-        try:
-            # -U "Mozilla/5.0" to avoid some 403s
-            cmd = ['wget', '-q', '-U', 'Mozilla/5.0', '-O', str(output_file), candidate['url']]
-            result = subprocess.run(cmd)
-            
-            if result.returncode == 0 and output_file.exists() and output_file.stat().st_size > 0:
-                print(f"  ✓ Downloaded image for {candidate['name']}")
-                final_landmark = candidate
-                download_success = True
-                break
-            else:
-                print(f"  ✗ Failed to download {candidate['name']} (Size: {output_file.stat().st_size if output_file.exists() else 0})")
-        except Exception as e:
-            print(f"  ✗ Exception downloading {candidate['name']}: {e}")
+    if local_image_path.exists():
+        print(f"  ✓ Using local source image: {local_image_name}")
+        shutil.copy2(local_image_path, output_file)
+        download_success = True
+        final_landmark = landmark
+    else:
+        # Fallback to download
+        # Create a list of candidates starting with the chosen one
+        candidates = [landmark] + [l for l in LANDMARKS if l != landmark]
+        
+        final_landmark = None
+        
+        for candidate in candidates:
+            # Check if local image exists for candidate
+            cand_local_path = source_images_dir / f"{candidate['name']}.jpg"
+            if cand_local_path.exists():
+                 print(f"  ✓ Using local source image (fallback): {candidate['name']}")
+                 shutil.copy2(cand_local_path, output_file)
+                 final_landmark = candidate
+                 download_success = True
+                 break
+
+            print(f"  > Attempting download: {candidate['name']}")
+            try:
+                # -U "Mozilla/5.0" to avoid some 403s
+                cmd = ['wget', '-q', '-U', 'Mozilla/5.0', '-O', str(output_file), candidate['url']]
+                result = subprocess.run(cmd)
+                
+                if result.returncode == 0 and output_file.exists() and output_file.stat().st_size > 0:
+                    print(f"  ✓ Downloaded image for {candidate['name']}")
+                    final_landmark = candidate
+                    download_success = True
+                    break
+                else:
+                    print(f"  ✗ Failed to download {candidate['name']} (Size: {output_file.stat().st_size if output_file.exists() else 0})")
+            except Exception as e:
+                print(f"  ✗ Exception downloading {candidate['name']}: {e}")
     
     if not download_success:
-        print(f"  [!] CRITICAL: Could not download any landmark image for Team {team_id}")
+        print(f"  [!] CRITICAL: Could not obtain any landmark image for Team {team_id}")
         return # Skip further processing to avoid crashes
     
     # If we switched landmarks due to failover, regenerate flag to match the image!

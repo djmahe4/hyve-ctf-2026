@@ -417,6 +417,38 @@ def generate_team_files(participant_count, create_admin_team):
     else:
         print(f"[✗] Team file generation failed!")
 
+def deploy_web_challenges():
+    """Deploy web challenge files to running container"""
+    print("\n[*] Deploying Web Challenges...")
+    
+    container_name = "ctf-web-challenges"
+    
+    # Wait for container
+    print("    Waiting for container to be ready...")
+    for i in range(30):
+        res = subprocess.run(
+            ['docker', 'ps', '-q', '-f', f'name={container_name}'],
+            capture_output=True, text=True
+        )
+        if res.stdout.strip():
+            break
+        time.sleep(1)
+    else:
+        print(f"[✗] Container {container_name} not found!")
+        return
+
+    # Copy files
+    try:
+        # Copy utils
+        subprocess.run(['docker', 'cp', 'utils/', f'{container_name}:/app/'], check=True)
+        # Copy web files
+        subprocess.run(['docker', 'cp', 'challenges/web/app.py', f'{container_name}:/app/'], check=True)
+        subprocess.run(['docker', 'cp', 'challenges/web/init_db.py', f'{container_name}:/app/'], check=True)
+        
+        print(f"[✓] Deployed web challenge files to {container_name}")
+    except subprocess.CalledProcessError as e:
+        print(f"[✗] Failed to deploy files: {e}")
+
 def main():
     # Default configuration
     DEFAULT_PARTICIPANT_TEAMS = 20
@@ -526,6 +558,9 @@ Examples:
     
     # Step 6: Generate team files
     generate_team_files(PARTICIPANT_TEAMS, CREATE_ADMIN_TEST_TEAM)
+    
+    # Step 7: Deploy Web Challenges
+    deploy_web_challenges()
     
     print("\n" + "=" * 60)
     print("  Setup Complete!")

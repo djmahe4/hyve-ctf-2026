@@ -68,6 +68,7 @@ def create_pcap(output_file="cleartext_traffic.pcap", team_id="1"):
     s_ip = "192.168.1.10"
     sport = random.randint(30000, 60000)
     packets.append(IP(src=c_ip, dst=s_ip) / TCP(sport=sport, dport=21) / Raw(load="USER admin\r\n"))
+    packets.append(IP(src=c_ip, dst=s_ip) / TCP(sport=sport, dport=21) / Raw(load=f"HASH {hashlib.md5("NEW_PASSWORD".encode()).hexdigest()}\r\n"))
     packets.append(IP(src=s_ip, dst=c_ip) / TCP(sport=21, dport=sport) / Raw(load="331 Password required\r\n"))
     packets.append(IP(src=c_ip, dst=s_ip) / TCP(sport=sport, dport=21) / Raw(load=f"PASS {fake_flag}\r\n"))
     packets.append(IP(src=s_ip, dst=c_ip) / TCP(sport=21, dport=sport) / Raw(load="530 Login incorrect\r\n"))
@@ -80,8 +81,9 @@ def create_pcap(output_file="cleartext_traffic.pcap", team_id="1"):
     s_ip = "192.168.1.10"
     sport = 50234
     packets.append(IP(src=c_ip, dst=s_ip) / TCP(sport=sport, dport=21) / Raw(load="USER admin\r\n"))
+    packets.append(IP(src=c_ip, dst=s_ip) / TCP(sport=sport, dport=21) / Raw(load=f"HASH {hashlib.md5("hash".encode()).hexdigest()}\r\n"))
     packets.append(IP(src=s_ip, dst=c_ip) / TCP(sport=21, dport=sport) / Raw(load="331 Password required\r\n"))
-    packets.append(IP(src=c_ip, dst=s_ip) / TCP(sport=sport, dport=21) / Raw(load=f"PASS {flag}\r\n"))
+    packets.append(IP(src=c_ip, dst=s_ip) / TCP(sport=sport, dport=21) / Raw(load=f"NEW_PASSWORD {flag}\r\n"))
     packets.append(IP(src=s_ip, dst=c_ip) / TCP(sport=21, dport=sport) / Raw(load="230 Login successful\r\n"))
     
     # 7. Final wrap-up noise
@@ -91,7 +93,7 @@ def create_pcap(output_file="cleartext_traffic.pcap", team_id="1"):
     wrpcap(output_file, packets)
     print(f"[*] PCAP created: {output_file}")
     print(f"[*] Total Packets: {len(packets)}")
-    print(f"[*] Real Flag for Team {team_id}: {flag}")
+    print(f"[*] Real Flag for Team {team_id}: {flag.split('}')[0] + "_0800fc577294c34e0b28ad2839435945"  +'}'}")
 
 if __name__ == '__main__':
     try:

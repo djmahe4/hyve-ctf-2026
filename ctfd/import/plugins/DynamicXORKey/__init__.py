@@ -20,15 +20,24 @@ class DynamicXORKey(BaseFlag):
         saved: The base flag content (without the format wrapper and hash)
         """
         # 1. Regex to extract content and hash from provided string
-        match = re.match(r"HYVE_CTF\{(.+)_([0-9a-f]{8})\}", provided)
-        if not match:
+        # Provided: HYVE_CTF{CONTENT_HEXHASH}
+        match_provided = re.match(r"HYVE_CTF\{(.+)_([0-9a-f]{8})\}", provided)
+        if not match_provided:
             return False
         
-        provided_content = match.group(1)
-        provided_hash = match.group(2)
+        provided_content = match_provided.group(1)
+        provided_hash = match_provided.group(2)
         
-        # 2. Check if content matches base flag
-        if provided_content != saved:
+        # 2. Extract content from saved flag (DB format: HYVE_CTF{CONTENT_HASH})
+        match_saved = re.match(r"HYVE_CTF\{(.+)_HASH\}", saved)
+        if match_saved:
+            saved_content = match_saved.group(1)
+        else:
+            # Fallback: maybe saved is just the content?
+            saved_content = saved
+
+        # 3. Check if content matches base flag
+        if provided_content != saved_content:
             return False
             
         # 3. Generate expected hash
@@ -39,7 +48,7 @@ class DynamicXORKey(BaseFlag):
         secret = ctfd_config.get_config("secret_flag_key") or "default_secret"
         
         # Simple XOR hashing as requested
-        input_str = f"{saved}|{identifier}|{secret}"
+        input_str = f"{saved_content}|{identifier}|{secret}"
         xor_result = 0
         for char in input_str:
             xor_result ^= ord(char)

@@ -59,4 +59,69 @@ The platform is split across two Docker Compose files connected by a shared netw
 - **Linkages**: 
     - `file-proxy` -> `ctfd:8000` (for session validation)
     - `setup_ctf.py` -> `localhost:8001` (external access to CTFd)
-    - `challenge-web` -> `ctfd_network` (to identify teams via headers/cookies)
+## 5. Visual Workflows
+
+### System Architecture
+```mermaid
+graph TD
+    User([User])
+    
+    subgraph "SaaS Layer (CTFd)"
+        LB[Nginx Proxy]
+        CTFd[CTFd App]
+        DB[(MariaDB)]
+        Cache[(Redis)]
+    end
+    
+    subgraph "Challenge Layer"
+        WebChal[Web Challenges :8080]
+        FileProxy[File Proxy :8082]
+        Assets[Team Assets Volume]
+    end
+    
+    User -->|HTTP :8000| LB
+    LB --> CTFd
+    CTFd --> DB
+    CTFd --> Cache
+    
+    User -->|HTTP :8080| WebChal
+    User -->|HTTP :8082| FileProxy
+    
+    FileProxy -->|Auth Check| CTFd
+    FileProxy -->|Read| Assets
+    Assets -->|Generate| SetupScript[setup_ctf.py]
+```
+
+### Dynamic Flag Validation Logic
+```mermaid
+sequenceDiagram
+    participant User
+    participant CTFd
+    participant Plugin as DynamicXORKey Plugin
+    participant DB
+    
+    User->>CTFd: Submit Flag (HYVE_CTF{...})
+    CTFd->>Plugin: validate(submission, team_id)
+    Plugin->>DB: Fetch Base Content (e.g., "sql_inject")
+    Plugin->>Plugin: Calculate Hash(Base + TeamID + Secret)
+    Plugin->>Plugin: Construct Expected Flag
+    
+    alt Match
+        Plugin->>CTFd: Return True
+        CTFd->>User: "Correct!"
+    else Mismatch
+        Plugin->>CTFd: Return False
+        CTFd->>User: "Incorrect"
+    end
+```
+
+## 6. Performance & Security Considerations
+
+### Server Load Handling
+*   **Container Resource Limits**: Each challenge container should have `cpus` and `memory` limits defined in `docker-compose.yml` to prevent a single exploited container from exhausting host resources.
+*   **Gunicorn Workers**: CTFd runs with 4 Gunicorn workers by default. For higher load (100+ concurrent users), increase `WORKERS` in `docker-compose.yml` to `2 * CPU_CORES + 1`.
+
+### Rate Limiting
+1.  **Flag Submissions**: CTFd natively uses Redis to rate-limit flag submissions (default: 10 attempts per minute). This prevents brute-forcing of the dynamic hash.
+2.  **File Downloads**: The `file-proxy` validates sessions for *every* request. Nginx can be configured with `limit_req` zone to prevent scraping attacks on the assets.
+3.  **Web Challenges**: The Flask app (`app.py`) uses a single-threaded development server by default. For production, deploy behind `gunicorn` or `nginx` to handle concurrent connections gracefully.

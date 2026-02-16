@@ -322,4 +322,4 @@ if __name__ == '__main__':
         cursor.execute("INSERT INTO users VALUES (1001, 'guest', 'guest', 'guest@example.com', 'No secrets here')")
         conn.commit()
         conn.close()
-    app.run(host='0.0.0.0', port=8080, debug=True)
+    app.run(host='127.0.0.1', port=8080, debug=True)

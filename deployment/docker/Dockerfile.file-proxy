@@ -6,7 +6,7 @@ WORKDIR /app
 COPY file_proxy.py .
 
 # Install dependencies
-RUN pip install --no-cache-dir flask
+RUN pip install --no-cache-dir flask requests
 
 # Expose port
 EXPOSE 8082

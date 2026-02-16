@@ -102,7 +102,11 @@ def setup_ctfd():
     # Extract nonce from form
     from bs4 import BeautifulSoup
     soup = BeautifulSoup(setup_page.text, 'html.parser')
-    nonce = soup.find('input', {'name': 'nonce'})['value']
+    try:
+        nonce = soup.find('input', {'name': 'nonce'})['value']
+    except:
+        print("[!] Could not find nonce. CTFd might be already configured.")
+        return session, None
     
     # Calculate event times
     start_time = datetime.datetime.now(datetime.timezone.utc) + timedelta(minutes=CTF_START_OFFSET_MINUTES)

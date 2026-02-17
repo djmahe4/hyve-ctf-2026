@@ -398,7 +398,7 @@ def generate_files():
         'python:3.9-slim',
         'bash', '-c',
         '''
-        apt-get update && apt-get install -y steghide curl wget libimage-exiftool-perl && \
+        apt-get update && apt-get install -y steghide curl wget libimage-exiftool-perl imagemagick && \
         pip install scapy pyyaml && \
         python /utils/generate_team_files.py --output /challenges
         '''

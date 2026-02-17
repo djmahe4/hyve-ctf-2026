@@ -68,15 +68,8 @@ def import_challenges(challenges_file, session_or_token, use_token=False):
             "description": challenge['description'],
             "value": challenge['value'],
             "state": challenge.get('state', 'visible'),
-            "type": challenge.get('type', 'standard')
+            "type": "standard"
         }
-        
-        # Add dynamic challenge fields if type is dynamic
-        # if challenge.get('type') == 'decay' or challenge.get('type') == 'dynamic':
-        #     chal_data['type'] = 'dynamic'  # CTFd uses 'dynamic' not 'decay'
-        #     chal_data['initial'] = challenge['value']
-        #     chal_data['minimum'] = challenge.get('minimum', challenge['value'] // 2)  # Default: half of initial
-        #     chal_data['decay'] = challenge.get('decay', 25)  # Default decay rate
         
         # Try to create challenge
         response = session.post(

@@ -68,25 +68,21 @@ cd ../..
 echo "    ✓ Challenge services stopped"
 echo ""
 
-# Remove generated team files if requested
+# Remove generated static files if requested
 if [ "$REMOVE_DATA" = true ]; then
-    echo "[*] Removing generated team files..."
-    if [ -d "challenges/teams" ]; then
-        # Use docker to remove to avoid permission issues
-        docker run --rm -v "$(pwd)/challenges/teams:/data" alpine sh -c "rm -rf /data/*"
-        # Then remove the directory itself if empty/possible, or just leave empty dir
-        rm -rf challenges/teams
-        echo "    ✓ Team files removed"
+    echo "[*] Removing generated static challenge files..."
+    if [ -d "challenges/static" ]; then
+        rm -rf challenges/static
+        echo "    ✓ Static files removed"
     else
-        echo "    ℹ No team files to remove"
+        echo "    ℹ No static files to remove"
     fi
     echo ""
     
     echo "[*] Removing CTFd persistent data..."
     if [ -d "ctfd/data" ]; then
-        # Use docker to remove to avoid permission issues
-        docker run --rm -v "$(pwd)/ctfd/data:/data" alpine sh -c "rm -rf /data/*"
-        rm -rf ctfd/data
+        # Use sudo to remove to avoid permission issues if Docker created them
+        sudo rm -rf ctfd/data
         echo "    ✓ CTFd data removed (database, uploads, logs)"
     else
         echo "    ℹ No CTFd data to remove"
@@ -97,7 +93,7 @@ fi
 echo ""
 if [ "$REMOVE_DATA" = true ]; then
     echo "All services stopped and data removed!"
-    echo "To start fresh, run: ./setup.sh && python setup_ctf.py"
+    echo "To start fresh, run: ./setup.sh && python3 setup_ctf.py"
 else
     echo "All services stopped successfully!"
     echo "Data preserved. Use './stop.sh -rm' to remove all data."

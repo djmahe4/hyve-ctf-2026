@@ -3,14 +3,8 @@
 echo "Starting Hyve CTF 2026..."
 echo ""
 
-# Start CTFd
-echo "Starting CTFd platform..."
-cd ctfd
-docker-compose up -d
-cd ..
-
 # Start challenges
-echo "Starting challenge infrastructure..."
+echo "Starting challenge web services..."
 cd deployment/docker
 docker-compose -f docker-compose.challenges.yml up -d
 cd ../..

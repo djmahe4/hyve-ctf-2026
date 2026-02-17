@@ -382,34 +382,18 @@ def import_challenges(token):
     else:
         print(f"[✗] Challenge import failed:\n{result.stderr}")
 
-def generate_files(participant_count, create_admin_team=True):
-    """Generate static challenge files using Docker"""
-    total_teams = participant_count + (1 if create_admin_team else 0)
-    print(f"\n[*] Generating static challenge files for {total_teams} teams...")
-    print("    This will run in a Docker container with Linux tools...")
+def generate_files():
+    """Generate global static challenge files natively"""
+    print(f"\n[*] Generating global static challenge files...")
     
-    # Get absolute paths
-    challenges_dir = Path('challenges').absolute()
-    utils_dir = Path('utils').absolute()
-    
-    docker_cmd = [
-        'docker', 'run', '--rm',
-        '-v', f'{challenges_dir}:/challenges',
-        '-v', f'{utils_dir}:/utils',
-        'python:3.9-slim',
-        'bash', '-c',
-        f'''
-        apt-get update && apt-get install -y steghide curl wget libimage-exiftool-perl imagemagick && \
-        pip install scapy pyyaml && \
-        python /utils/generate_team_files.py --count {total_teams} --output /challenges
-        '''
-    ]
-    
+    # Run the generation script natively
     try:
-        result = subprocess.run(docker_cmd, check=True)
-        print(f"[✓] Static files generated successfully!")
-    except subprocess.CalledProcessError:
-        print(f"[✗] File generation failed!")
+        cmd = [sys.executable, "utils/generate_team_files.py"]
+        result = subprocess.run(cmd, check=True)
+        print("    ✓ Challenge files generated successfully")
+    except subprocess.CalledProcessError as e:
+        print(f"    [✗] File generation failed: {e}")
+        sys.exit(1)
 
 def deploy_web_challenges():
     """Deploy web challenge files to running container"""
@@ -548,7 +532,7 @@ Examples:
     
     # Step 5: Generate static challenge files
     # Must be done BEFORE import so files exist for upload
-    generate_files(PARTICIPANT_TEAMS, CREATE_ADMIN_TEST_TEAM)
+    generate_files()
     
     # Step 6: Import challenges (and upload files)
     import_challenges(token)

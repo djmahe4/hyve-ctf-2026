@@ -35,6 +35,18 @@ def create_static_directory():
 import random
 import time
 
+def rot13(text):
+    """Simple ROT13 helper"""
+    result = ""
+    for char in text:
+        if 'a' <= char <= 'z':
+            result += chr((ord(char) - ord('a') + 13) % 26 + ord('a'))
+        elif 'A' <= char <= 'Z':
+            result += chr((ord(char) - ord('A') + 13) % 26 + ord('A'))
+        else:
+            result += char
+    return result
+
 # Dynamic Landmarks List (Wikimedia Commons URLs - reliable and open)
 LANDMARKS = [
     {
@@ -65,8 +77,14 @@ LANDMARKS = [
         "name": "Great Wall of China",
         "keywords": ["BEIJING", "CHINA", "GREATWALL"],
         "lat": 40.4319, "lon": 116.5704, "lat_ref": "N", "lon_ref": "E",
-        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/The_Great_Wall_of_China_at_Jinshanling-edit.jpg/800px-The_Great_Wall_of_China_at_Jinshanling-edit.jpg"
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Great_Wall_of_China_July_2006.JPG/1280px-Great_Wall_of_China_July_2006.JPG"
     },
+    { 
+        "name": "Stockholm",
+        "keywords": ["STOCKHOLM", "SWEDEN", "STOCKHOLM"],
+        "lat": 59.3293, "lon": 18.0686, "lat_ref": "N", "lon_ref": "E",
+        "file": "challenges\osint\source_images\Driving_Stockholm_Sweden.png"
+    }
 ]
 
 def generate_files(output_dir):
@@ -122,6 +140,10 @@ def generate_files(output_dir):
         except: pass
     elif download_success:
         print("    ! Skipping EXIF embedding (exiftool not found)")
+
+    # landmark = LANDMARKS[-1]
+
+    # flag = get_flag("")
 
     # -------------------------------------------------------------------------
     # STEGO: Embed flag in image
@@ -185,14 +207,19 @@ def generate_files(output_dir):
          print(f"    ✗ Network challenge generation failed: {e}")
 
     # -------------------------------------------------------------------------
-    # CRYPTO: Generate Base64 file
-    print(f"  > Generating Crypto challenge...")
-    crypto_out = output_dir / "crypto" / "base64.txt"
-    crypto_flag = get_flag("base64_decoded_success")
-    encoded = base64.b64encode(base64.b64encode(base64.b64encode(crypto_flag.encode()))).decode()
+    # CRYPTO: Generate Base64 + ROT13 file
+    print(f"  > Generating Crypto challenge (Enhanced)...")
+    crypto_out = output_dir / "crypto" / "recipe.txt"  # Changed filename to be less obvious
+    crypto_flag = "HYVE_CTF{chefs_secret_r0t_b64_mix}"
+    
+    # Base64 -> ROT13 -> Base64
+    step1 = base64.b64encode(crypto_flag.encode()).decode()
+    step2 = rot13(step1)
+    encoded = base64.b64encode(step2.encode()).decode()
+    
     with open(crypto_out, 'w') as f:
         f.write(encoded)
-    print(f"    ✓ Generated encoded text file")
+    print(f"    [+] Generated enhanced crypto file: {encoded[:20]}...")
 
 
 

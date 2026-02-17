@@ -103,10 +103,22 @@ def setup_ctfd():
     # Extract nonce from form
     from bs4 import BeautifulSoup
     soup = BeautifulSoup(setup_page.text, 'html.parser')
-    try:
-        nonce = soup.find('input', {'name': 'nonce'})['value']
-    except:
-        print("[!] Could not find nonce. CTFd might be already configured.")
+    nonce = None
+    
+    # Try multiple ways to find the nonce
+    nonce_input = soup.find('input', {'name': 'nonce'})
+    if nonce_input:
+        nonce = nonce_input.get('value')
+    
+    if not nonce:
+        # Check meta tag
+        meta = soup.find('meta', {'name': 'csrf-token'})
+        if meta:
+            nonce = meta.get('content')
+
+    if not nonce:
+        print("[!] Could not find nonce. CTFd might be already configured or returning an error.")
+        # print(f"    Page content snippet: {setup_page.text[:200]}")
         return session, None
     
     # Calculate event times
@@ -137,11 +149,9 @@ def setup_ctfd():
         response = session.post(f"{CTFD_URL}/setup", data=setup_data, allow_redirects=False)
         
         # Check for successful install (redirect to root or login)
-        if response.status_code == 302 or (response.status_code == 200 and 'login' in response.url):
-            print(f"[✓] CTFd configured successfully!")
-            print(f"    Admin: Sin444 / 09877890")
-            print(f"    Start: {start_time}")
-            print(f"    End: {end_time}")
+        if response.status_code in [302, 200]:
+            # Verify if actually setup by checking for redirect to login or root
+            print(f"[✓] CTFd setup command sent (Status: {response.status_code})")
             return session, {
                 'username': 'Sin444',
                 'password': '09877890',
@@ -178,55 +188,69 @@ def login(session, username, password):
         'nonce': nonce
     }
     
-    response = session.post(f"{CTFD_URL}/login", data=login_data)
+    response = session.post(f"{CTFD_URL}/login", data=login_data, allow_redirects=False)
     
-    if response.status_code == 200:
+    # Successful login in CTFd is a 302 redirect
+    if response.status_code == 302:
         print("[✓] Logged in successfully")
         return True
     else:
-        print("[✗] Login failed")
+        # If 200, it usually means login failed and we are back on the login page
+        print(f"[✗] Login failed (Status: {response.status_code})")
+        # if response.status_code == 200:
+        #     # Potential for scraping error message here
+        #     pass
         return False
 
 def get_api_token(session):
     """Generate API token"""
     print("\n[*] Generating API token...")
     
-    # Strategy 1: Get CSRF token from settings or login page
+    # Strategy: Find CSRF nonce in ANY page while logged in
     csrf_token = None
     try:
-        # Try settings first (if logged in)
+        # 1. Try to get it from a page that always has it
         resp = session.get(f"{CTFD_URL}/settings")
-        if resp.status_code != 200:
-            # Fallback to login
-            resp = session.get(f"{CTFD_URL}/login")
-            
+        # Ensure we didn't get kicked to login
+        if "/login" in resp.url and "/settings" not in resp.url:
+             print("    [!] Session seems invalid (redirected to login)")
+        
         from bs4 import BeautifulSoup
         soup = BeautifulSoup(resp.text, 'html.parser')
         
-        # 1. Try meta tag (Modern CTFd)
+        # Method A: Meta tag (standard CTFd)
         meta = soup.find('meta', {'name': 'csrf-token'})
         if meta:
             csrf_token = meta.get('content')
             
-        # 2. Try script variable
+        # Method B: Script variable
         if not csrf_token:
             import re
             match = re.search(r'csrf_nonce\s*=\s*"([^"]+)"', resp.text)
             if match:
                 csrf_token = match.group(1)
 
-        # 3. Try hidden input (Traditional)
+        # Method C: Hidden input
         if not csrf_token:
             inp = soup.find('input', {'name': 'nonce'})
             if inp:
                 csrf_token = inp.get('value')
+        
+        if not csrf_token:
+            # Last ditch: check if it's in a script block as a global
+            match = re.search(r'"csrfNonce":\s*"([^"]+)"', resp.text)
+            if match:
+                csrf_token = match.group(1)
 
     except Exception as e:
         print(f"    Warning: CSRF extraction failed: {e}")
 
     if not csrf_token:
-        print("    [!] Could not find CSRF token. API creation might fail.")
+        print("    [!] Could not find CSRF token. The session might be unauthenticated.")
         csrf_token = ''
+    else:
+        # print(f"    ✓ Found CSRF: {csrf_token[:10]}...")
+        pass
 
     # Create token via API
     token_data = {

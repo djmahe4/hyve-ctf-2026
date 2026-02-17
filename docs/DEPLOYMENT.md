@@ -151,21 +151,47 @@ server {
 
 ---
 
-## 6. Troubleshooting
+## 6. Troubleshooting & FAQ
 
-### Reset Environment
-To completely wipe all data (database, users, generated files) and start fresh:
-```bash
-./stop.sh -rm
-```
-Then run `./setup.sh` to redeploy.
+### Common Issues
 
-### Logs
-View logs for specific services:
-```bash
-docker logs ctfd-ctfd-1       # CTFd logs
-docker logs ctf-web-challenges # Web challenge logs
-```
+#### 1. Internal Server Error (500) on Setup or Login
+*   **Cause**: Usually caused by database corruption or plugin initialization conflicts (e.g., `DynamicXORKey` trying to recreate existing tables).
+*   **Solution**: Perform a deep-clean wipe. The standard `docker compose down` might not clear host-mounted volumes.
+    ```bash
+    ./stop.sh -rm
+    # If the directory still exists, remove it manually
+    sudo rm -rf ctfd/data
+    ./setup.sh
+    ```
+
+#### 2. Port Conflict / Site "Still Works" After Stop
+*   **Cause**: Port `8001` or `8080` might be held by another application (like a native Flask app) or an orphan WSL relay process.
+*   **Solution**: Identify and kill the process holding the port.
+    *   **Windows (PowerShell)**: 
+        ```powershell
+        netstat -ano | findstr :8001
+        Stop-Process -Id <PID> -Force
+        ```
+    *   **WSL/Linux**:
+        ```bash
+        sudo fuser -k 8001/tcp
+        ```
+
+#### 3. API Token Generation Failed / CSRF Errors
+*   **Cause**: The automated setup script cannot find the CSRF nonce, often because the CTFd page returned an error (500) instead of the expected UI.
+*   **Solution**: Fix the underlying 500 error first (see point #1). Ensure `DynamicXORKey` plugin is correctly registered without redundant `db.create_all()` calls.
+
+#### 4. Web Challenges: "ModuleNotFoundError: No module named 'utils'"
+*   **Cause**: The `ctf-web-challenges` container is missing the shared `utils/` directory.
+*   **Solution**: Ensure the `Dockerfile` for web challenges includes `COPY utils/ /app/utils/`. This is already fixed in the latest repo version.
+
+### WSL2 Specific Tips
+
+If you are running on Windows with WSL2, the network bridge sometimes "sticks". If `localhost:8001` refuses to connect even when Docker says "Up", try:
+1.  Restarting Docker Desktop.
+2.  Running `wsl --shutdown` in PowerShell and restarting your terminal.
+3.  Ensuring your WSL distro (e.g., Kali/Ubuntu) isn't running a native CTFd instance on the same ports.
 
 ---
 

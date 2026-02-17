@@ -7,6 +7,7 @@ from scapy.all import *
 import random
 import sys
 import os
+import hashlib
 
 # Import our flag generator
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))

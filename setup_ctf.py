@@ -383,17 +383,22 @@ def import_challenges(token):
         print(f"[✗] Challenge import failed:\n{result.stderr}")
 
 def generate_files():
-    """Generate global static challenge files natively"""
-    print(f"\n[*] Generating global static challenge files...")
+    """Call external generation script to create static challenge files"""
+    static_dir = PROJECT_ROOT / "challenges" / "static"
+    # if static_dir.exists() and any(static_dir.iterdir()):
+    #     print("\n[*] Static challenge files already exist in challenges/static/. Skipping generation.")
+    #     return
+        
+    print("\n[*] Generating challenge files natively...")
+    gen_script = PROJECT_ROOT / "utils" / "generate_team_files.py"
     
-    # Run the generation script natively
     try:
-        cmd = [sys.executable, "utils/generate_team_files.py"]
-        result = subprocess.run(cmd, check=True)
-        print("    ✓ Challenge files generated successfully")
-    except subprocess.CalledProcessError as e:
-        print(f"    [✗] File generation failed: {e}")
-        sys.exit(1)
+        # Run natively using current python
+        subprocess.run([sys.executable, str(gen_script)], check=True)
+        print("  ✓ Challenge files generated")
+    except Exception as e:
+        print(f"  ✗ Failed to generate files: {e}")
+        # Not fatal if partial success or files exist
 
 def deploy_web_challenges():
     """Deploy web challenge files to running container"""

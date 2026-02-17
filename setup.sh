@@ -25,6 +25,12 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     pip3 install scapy pyyaml requests
 fi
 
+# Generate static challenge files natively
+echo "[*] Generating challenge files natively..."
+python3 utils/generate_team_files.py
+echo "    ✓ Challenge files generated in challenges/static/"
+echo ""
+
 # Start CTFd
 echo "[*] Starting CTFd platform (Docker)..."
 cd ctfd

@@ -118,7 +118,7 @@ def generate_files(output_dir):
         cand_file = landmark.get("file") 
         if cand_file:
             download_success = True
-            shutil.copy2(cand_file, output_file)
+            shutil.copy2(PROJECT_ROOT / cand_file, output_file)
         elif cand_local_path.exists():
             download_success = True
             shutil.copy2(cand_local_path, output_file)

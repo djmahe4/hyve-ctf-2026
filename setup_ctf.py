@@ -402,11 +402,17 @@ def import_challenges(token):
     """Import challenges using existing script"""
     print("\n[*] Importing challenges...")
     
+    # Use root-level challenges.yml
+    challenges_file = 'challenges/challenges.yml'
+    if not Path(challenges_file).exists():
+        print(f"[!] Warning: {challenges_file} not found. Checking ctfd/import...")
+        challenges_file = 'ctfd/import/challenges/challenges.yml'
+
     result = subprocess.run(
         [
-            'python',
+            sys.executable,
             'import_challenges.py',
-            'ctfd/import/challenges/challenges.yml',
+            challenges_file,
             token
         ],
         capture_output=True,
@@ -415,26 +421,42 @@ def import_challenges(token):
     
     if result.returncode == 0:
         print("[✓] Challenges imported successfully!")
+        print(result.stdout)
     else:
         print(f"[✗] Challenge import failed:\n{result.stderr}")
+        print(f"Stdout: {result.stdout}")
 
 def generate_files():
     """Call external generation script to create static challenge files"""
-    static_dir = PROJECT_ROOT / "challenges" / "static"
-    # if static_dir.exists() and any(static_dir.iterdir()):
-    #     print("\n[*] Static challenge files already exist in challenges/static/. Skipping generation.")
-    #     return
-        
+    
+    # Cleanup legacy teams folder if it exists
+    teams_dir = PROJECT_ROOT / "challenges" / "teams"
+    if teams_dir.exists():
+        print(f"[*] Removing legacy challenges/teams directory...")
+        try:
+            shutil.rmtree(teams_dir)
+        except Exception as e:
+            print(f"    Warning: Could not remove teams dir: {e}")
+
     print("\n[*] Generating challenge files natively...")
     gen_script = PROJECT_ROOT / "utils" / "generate_team_files.py"
     
     try:
-        # Run natively using current python
-        subprocess.run([sys.executable, str(gen_script)], check=True)
+        # Run natively using current python and capture output
+        result = subprocess.run(
+            [sys.executable, str(gen_script)], 
+            capture_output=True,
+            text=True,
+            check=True
+        )
         print("  ✓ Challenge files generated")
+        print(result.stdout)
+    except subprocess.CalledProcessError as e:
+        print(f"  ✗ Failed to generate files (Exit Code {e.returncode}):")
+        print(f"    Stderr: {e.stderr}")
+        print(f"    Stdout: {e.stdout}")
     except Exception as e:
         print(f"  ✗ Failed to generate files: {e}")
-        # Not fatal if partial success or files exist
 
 def deploy_web_challenges():
     """Deploy web challenge files to running container"""

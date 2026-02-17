@@ -94,14 +94,19 @@ def generate_files(output_dir):
          download_success = True
     else:
         try:
-            cmd = ['wget', '-q', '-U', 'Mozilla/5.0', '-O', str(output_file), landmark['url']]
-            result = subprocess.run(cmd)
-            if result.returncode == 0 and output_file.exists():
+            import requests # Imported here to be safe
+            print(f"    > Downloading {landmark['name']} via requests...")
+            resp = requests.get(landmark['url'], headers={'User-Agent': 'Mozilla/5.0'}, timeout=10)
+            if resp.status_code == 200:
+                with open(output_file, 'wb') as f:
+                    f.write(resp.content)
                 download_success = True
+            else:
+                print(f"    ✗ Download failed (HTTP {resp.status_code})")
         except Exception as e:
             print(f"    ✗ Download failed: {e}")
 
-    if download_success:
+    if download_success and shutil.which('exiftool'):
         exif_cmd = [
             'exiftool',
             f'-GPSLatitude={landmark["lat"]}',
@@ -111,8 +116,12 @@ def generate_files(output_dir):
             '-overwrite_original',
             str(output_file)
         ]
-        subprocess.run(exif_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        print(f"    ✓ Embedded GPS coordinates")
+        try:
+            subprocess.run(exif_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            print(f"    ✓ Embedded GPS coordinates")
+        except: pass
+    elif download_success:
+        print("    ! Skipping EXIF embedding (exiftool not found)")
 
     # -------------------------------------------------------------------------
     # STEGO: Embed flag in image
@@ -124,27 +133,44 @@ def generate_files(output_dir):
     
     cover_image = output_dir / "stego" / "cat.jpeg"
     local_cat = PROJECT_ROOT / "challenges" / "stego" / "cat.jpeg"
+    
+    cat_ready = False
+    # if local_cat.exists():
+    #     if local_cat.resolve() != cover_image.resolve():
+    # Try to use local image first
     if local_cat.exists():
         if local_cat.resolve() != cover_image.resolve():
             shutil.copy2(local_cat, cover_image)
-    else:
+        cat_ready = True
+    elif shutil.which('convert'):
         subprocess.run(['convert', '-size', '600x400', 'xc:grey', str(cover_image)]) 
-
-    password = "2026-ftc" 
-    stego_cmd = [
-        'steghide', 'embed', '-cf', str(cover_image), '-ef', str(secret_file), '-p', password, '-f'
-    ]
-    try:
-        subprocess.run(stego_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        if secret_file.exists():
-            os.remove(secret_file)
-    except Exception as e:
-        print(f"    ✗ Steghide failed: {e}")
+        cat_ready = True
+    else:
+        print("    ! Skipping Stego image generation (neither local cat.jpeg nor ImageMagick found)")
     
-    wordlist_path = output_dir / "stego" / "wordlist.txt"
-    with open(wordlist_path, 'w') as f:
-        f.write(f"purr\nwhiskers\n{password}\nkitty\nscratch\n")
-    print(f"    ✓ Created Stego image and wordlist")
+    password = "2026ftc"
+    if cat_ready and shutil.which('steghide'):
+        stego_cmd = [
+            'steghide', 'embed', '-cf', str(cover_image), '-ef', str(secret_file), '-p', password, '-f'
+        ]
+        try:
+            subprocess.run(stego_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            if secret_file.exists():
+                os.remove(secret_file)
+            print(f"    ✓ Embedded flag with Steghide")
+        except Exception as e:
+            print(f"    ✗ Steghide failed: {e}")
+    elif cat_ready:
+        print("    ! Skipping Steghide embedding (steghide binary not found)")
+    
+    password = "2026ftc"
+    try:
+        wordlist_path = output_dir / "stego" / "wordlist.txt"
+        with open(wordlist_path, 'w', encoding='utf-8') as f:
+            f.write(f"purr\nwhiskers\n{password}\nkitty\nscratch\n")
+        print(f"    ✓ Created Stego image and wordlist")
+    except Exception as e:
+        print(f"    ! Failed to write wordlist: {e}")
 
     # -------------------------------------------------------------------------
     # NETWORK: Generate PCAP

@@ -115,9 +115,13 @@ def generate_files(output_dir):
         download_success = False
         
         cand_local_path = source_images_dir / f"{landmark['name']}.jpg"
-        if cand_local_path.exists() or (landmark.get("file") and Path(landmark["file"]).exists()):
-             shutil.copy2(cand_local_path, output_file)
-             download_success = True
+        cand_file = landmark.get("file") 
+        if cand_file:
+            download_success = True
+            shutil.copy2(cand_file, output_file)
+        elif cand_local_path.exists():
+            download_success = True
+            shutil.copy2(cand_local_path, output_file)
         else:
             try:
                 import requests 

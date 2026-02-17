@@ -139,12 +139,12 @@ def setup_ctfd():
         # Check for successful install (redirect to root or login)
         if response.status_code == 302 or (response.status_code == 200 and 'login' in response.url):
             print(f"[✓] CTFd configured successfully!")
-            print(f"    Admin: admin / admin123")
+            print(f"    Admin: Sin444 / 09877890")
             print(f"    Start: {start_time}")
             print(f"    End: {end_time}")
             return session, {
-                'username': 'admin',
-                'password': 'admin123',
+                'username': 'Sin444',
+                'password': '09877890',
                 'start': int(start_time.timestamp()),
                 'end': int(end_time.timestamp())
             }

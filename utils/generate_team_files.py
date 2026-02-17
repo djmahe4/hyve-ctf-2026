@@ -115,7 +115,7 @@ def generate_files(output_dir):
         download_success = False
         
         cand_local_path = source_images_dir / f"{landmark['name']}.jpg"
-        if cand_local_path.exists() or landmark.get("file","None").exists():
+        if cand_local_path.exists() or Path(landmark.get("file")).exists():
              shutil.copy2(cand_local_path, output_file)
              download_success = True
         else:

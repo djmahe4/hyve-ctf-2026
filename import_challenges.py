@@ -158,11 +158,20 @@ def import_challenges(challenges_file, session_or_token, use_token=False):
                          
                          # CTFd API v1
                          # POST /api/v1/files
+                         upload_headers = {}
+                         if use_token:
+                             upload_headers['Authorization'] = f"Token {session_or_token}"
+                         else:
+                             # For session auth, we need the nonce / CSRF token
+                             csrf_token = session.cookies.get('nonce')
+                             if csrf_token:
+                                 upload_headers['CSRF-Token'] = csrf_token
+
                          resp = session.post(
                              f"{CTFD_URL}/api/v1/files",
                              files=files,
                              data=data,
-                             headers={'Authorization': headers.get('Authorization')} if 'Authorization' in headers else None
+                             headers=upload_headers
                          )
                          if resp.status_code == 200:
                              print(f"    ✓ Uploaded {path_obj.name}")

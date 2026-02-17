@@ -1,17 +1,21 @@
-#!/usr/bin/env python3
-import os
+import random
 
 def get_flag(base_content, identifier=None, secret=None):
     """
     Generate a static flag for the challenge.
     
     :param base_content: The core flag content (e.g., 'sql_1nj3ct10n_b4s1c')
-    :param identifier: (Legacy/Compat) Team ID (ignored for static flags)
-    :param secret: (Legacy/Compat) Secret key (ignored for static flags)
     :return: Full flag string 'HYVE_CTF{base_content}'
     """
-    # Simple static flag generation as requested
     return f"HYVE_CTF{{{base_content}}}"
+
+def get_fake_flag(base_content):
+    """
+    Generate a fake flag with a humorous jargon suffix.
+    """
+    jargons = ["real", "riyal", "legit", "trust_me_bro", "totally_real", "actual", "final", "final_final", "v2_fixed"]
+    suffix = random.choice(jargons)
+    return f"HYVE_CTF{{{base_content}_{suffix}}}"
 
 if __name__ == "__main__":
     import sys

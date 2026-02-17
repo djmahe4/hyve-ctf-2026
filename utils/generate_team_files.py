@@ -151,9 +151,9 @@ def generate_files(output_dir):
     print(f"  > Generating Network challenge...")
     pcap_out = output_dir / "network" / "cleartext_traffic.pcap"
     try:
-        network_flag = get_flag("cl34rt3xt_cr3ds_f0und")
-        cmd = ['python3', str(PROJECT_ROOT / "challenges" / "network" / "create_pcap.py"), network_flag, str(pcap_out)]
-        subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        # Pass team_id="1" since we are in global mode, and the output path
+        cmd = [sys.executable, str(PROJECT_ROOT / "challenges" / "network" / "create_pcap.py"), "1", str(pcap_out)]
+        subprocess.run(cmd, check=True)
         print(f"    ✓ Generated PCAP")
     except Exception as e:
          print(f"    ✗ Network challenge generation failed: {e}")

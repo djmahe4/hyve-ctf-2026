@@ -11,7 +11,7 @@ import hashlib
 
 # Import our flag generator
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
-from utils.flag_gen import get_flag
+from utils.flag_gen import get_flag, get_fake_flag
 
 def create_pcap(output_file="cleartext_traffic.pcap", team_id="1"):
     """Generate PCAP file with interleaved noise and auth attempts for better realism"""
@@ -19,7 +19,7 @@ def create_pcap(output_file="cleartext_traffic.pcap", team_id="1"):
     
     # Generate flags
     flag = get_flag("cl34rt3xt_cr3ds_f0und", team_id)
-    fake_flag = "HYVE_CTF{cl34rt3xt_cr3ds_f0und_FAKE}"
+    fake_flag = get_fake_flag("cl34rt3xt_cr3ds_f0und")
     
     # Known IPs
     GOOGLE_IPS = ["142.250.190.46", "172.217.16.142"]

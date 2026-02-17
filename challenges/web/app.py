@@ -18,7 +18,7 @@ BASE_XSS = "xss_r3fl3ct3d_vuln"
 BASE_IDOR = "1d0r_pr1v_3sc4l4t10n"
 BASE_SOURCE_DIVER = "html_embedded_flag"
 
-from utils.flag_gen import get_flag
+from utils.flag_gen import get_flag, get_fake_flag
 
 def get_current_team_id():
     # In a real CTFd deployment with a reverse proxy, we'd get this from a header
@@ -197,8 +197,8 @@ SECRET_TEMPLATE = """
 @app.route('/')
 def index():
     team_id = get_current_team_id()
-    fake_flag = get_flag("source_code_diver", team_id) + "_FAKE"
-    return render_template_string(INDEX_TEMPLATE, fake_flag="HYVE_CTF{source_code_diver_FAKEHASH}")
+    fake_flag = get_fake_flag("source_code_diver")
+    return render_template_string(INDEX_TEMPLATE, fake_flag=fake_flag)
 
 @app.route('/menu')
 def menu_page():
@@ -280,7 +280,8 @@ def profile_page():
 def secret_ingredients():
     team_id = get_current_team_id()
     flag = get_flag(BASE_SOURCE_DIVER, team_id)
-    return render_template_string(SECRET_TEMPLATE, flag=flag, fake_flag="HYVE_CTF{you_found_it}_FAKEHASH")
+    fake_flag = get_fake_flag("you_found_it")
+    return render_template_string(SECRET_TEMPLATE, flag=flag, fake_flag=fake_flag)
 
 @app.route('/api/order/tracking/<int:order_id>')
 def track_order(order_id):

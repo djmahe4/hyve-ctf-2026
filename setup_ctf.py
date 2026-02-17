@@ -398,7 +398,7 @@ def generate_files(participant_count, create_admin_team=True):
         '-v', f'{utils_dir}:/utils',
         'python:3.9-slim',
         'bash', '-c',
-        '''
+        f'''
         apt-get update && apt-get install -y steghide curl wget libimage-exiftool-perl imagemagick && \
         pip install scapy pyyaml && \
         python /utils/generate_team_files.py --count {total_teams} --output /challenges

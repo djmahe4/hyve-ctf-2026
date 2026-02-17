@@ -7,6 +7,7 @@ A gamified web challenge with multiple vulnerabilities
 from flask import Flask, request, render_template_string, jsonify, make_response
 import sqlite3
 import os
+import random
 
 app = Flask(__name__)
 app.secret_key = 'bistro_secret_key'
@@ -26,8 +27,8 @@ def get_current_team_id():
     return request.args.get('team_id') or request.cookies.get('team_id', '1')
 
 # Memes
-GIF_SUCCESS = "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJqZ3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5/mm0JgrgE2LBXq/giphy.gif" # Hackerman
-GIF_FAILURE = "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJqZ3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5/vB6K45Q0uUqPa/giphy.gif" # Ah Ah Ah
+GIF_SUCCESS = "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdXFmMXJiMXkxNHg0YzhrYXZ2bWd2MHpsYmlhaTV0ZG0xdTJ2ZWtnZyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/115BJle6N2Av0A/giphy.gif" # Hackerman
+GIF_FAILURE = "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3bHU3MnRvZ3doZWdxbmtkNXk4MW9yamdkb3dncDVteXZvOWt0Z3RocSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/13EjgliswvWAX6/giphy.gif" # Ah Ah Ah
 
 # Layout CSS
 COMMON_CSS = """
@@ -43,6 +44,14 @@ COMMON_CSS = """
     .nav a:hover { color: #fff; }
     .footer { font-size: 0.8em; color: #666; text-align: center; margin-top: 50px; }
 """
+
+# Static Menu Data (Isolated from DB)
+MENU_ITEMS = [
+    {"name": "Zero Day Steak", "desc": "Rare, unpatched meat with encrypted greens.", "price": "$50", "img": "https://images.pexels.com/photos/1267320/pexels-photo-1267320.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"},
+    {"name": "Buffer Overflow Bisque", "desc": "Creamy soup that spills over the bowl.", "price": "$12", "img": "https://images.pexels.com/photos/539451/pexels-photo-539451.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"},
+    {"name": "Syn-Ack Salad", "desc": "Fresh greens with a three-way handshake dressing.", "price": "$15", "img": "https://images.pexels.com/photos/1059905/pexels-photo-1059905.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"},
+    {"name": "Binary Burger", "desc": "Double patty (0 and 1) with logic gate cheese.", "price": "$18", "img": "https://images.pexels.com/photos/1633578/pexels-photo-1633578.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"},
+]
 
 # Home Page Template
 INDEX_TEMPLATE = """
@@ -61,9 +70,9 @@ INDEX_TEMPLATE = """
     </div>
     <h1>Welcome to Hyve Bistro</h1>
     <div class="card">
-        <h3>Today's Special: The 'Zero Day' Steak</h3>
-        <p>A cut of meat so rare, it hasn't even been patched yet. Served with a side of encrypted greens.</p>
-        <img src="https://images.pexels.com/photos/1267320/pexels-photo-1267320.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" style="width:100%; border-radius:8px;">
+        <h3>Today's Special: {{ special.name }}</h3>
+        <p>{{ special.desc }}</p>
+        <img src="{{ special.img }}" style="width:100%; border-radius:8px;">
     </div>
     <div class="card">
         <h3>Fast Delivery Guaranteed</h3>
@@ -98,7 +107,15 @@ MENU_TEMPLATE = """
     {% if query %}
     <div class="card">
         <h3>Scan Results for: {{ query|safe }}</h3>
-        <p>Searching our database for "{{ query|safe }}" related ingredients...</p>
+        {% if results %}
+            <ul>
+            {% for item in results %}
+                <li><strong>{{ item.name }}</strong> - {{ item.desc }} ({{ item.price }})</li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No ingredients found matching "{{ query|safe }}". Try 'steak', 'salad', or 'wine'.</p>
+        {% endif %}
     </div>
     {% endif %}
     <div class="card">
@@ -198,7 +215,8 @@ SECRET_TEMPLATE = """
 def index():
     team_id = get_current_team_id()
     fake_flag = get_fake_flag("source_code_diver")
-    return render_template_string(INDEX_TEMPLATE, fake_flag=fake_flag)
+    special = random.choice(MENU_ITEMS)
+    return render_template_string(INDEX_TEMPLATE, fake_flag=fake_flag, special=special)
 
 @app.route('/menu')
 def menu_page():
@@ -222,7 +240,12 @@ def menu_search():
             </div>
         </body></html>
         """
-    return render_template_string(MENU_TEMPLATE, query=query)
+    
+    results = []
+    if query:
+        results = [item for item in MENU_ITEMS if query.lower() in item['name'].lower() or query.lower() in item['desc'].lower()]
+        
+    return render_template_string(MENU_TEMPLATE, query=query, results=results)
 
 @app.route('/staff-login', methods=['GET', 'POST'])
 def staff_login():
@@ -234,7 +257,7 @@ def staff_login():
     password = request.form.get('password', '')
     
     try:
-        conn = sqlite3.connect('ctf.db')
+        conn = sqlite3.connect('bistro.db')
         cursor = conn.cursor()
         # VULNERABLE TO SQLI
         query = f"SELECT * FROM users WHERE username='{username}' AND password='{password}'"
@@ -288,13 +311,13 @@ def track_order(order_id):
     team_id = get_current_team_id()
     # IDOR VULNERABLE
     try:
-        conn = sqlite3.connect('ctf.db')
+        conn = sqlite3.connect('bistro.db')
         cursor = conn.cursor()
         cursor.execute("SELECT id, username, email, secret FROM users WHERE id=?", (order_id,))
         record = cursor.fetchone()
         conn.close()
         if record:
-            if record[0] == 1: # Admin Order
+            if record[0] == 10: # Admin Order (Real Flag)
                 flag = get_flag(BASE_IDOR, team_id)
                 return jsonify({
                     'order_id': order_id,
@@ -302,12 +325,19 @@ def track_order(order_id):
                     'email': record[2],
                     'secret_note': flag 
                 })
+            elif record[0] in [3, 7]: # Fake Flags
+                 return jsonify({
+                    'order_id': order_id,
+                    'customer': record[1],
+                    'email': record[2],
+                    'secret_note': record[3] # Fake flag from DB
+                })
             else:
                 return jsonify({
                     'order_id': order_id,
                     'customer': record[1],
                     'status': 'In Transit',
-                    'note': 'Order contains extra napkins.'
+                    'note': record[3] if record[3] else 'Order contains extra napkins.'
                 })
         return jsonify({'error': 'Order not found'}), 404
     except:
@@ -315,11 +345,19 @@ def track_order(order_id):
 
 if __name__ == '__main__':
     # Initialize DB with some fake data if not exists
-    if not os.path.exists('ctf.db'):
-        conn = sqlite3.connect('ctf.db')
+    if not os.path.exists('bistro.db'):
+        conn = sqlite3.connect('bistro.db')
         cursor = conn.cursor()
         cursor.execute("CREATE TABLE users (id INTEGER PRIMARY KEY, username TEXT, password TEXT, email TEXT, secret TEXT)")
-        cursor.execute("INSERT INTO users VALUES (1, 'admin', 'complex_password_123', 'admin@hyvebistro.ctf', 'HYVE_CTF{placeholder}')")
+        # ID 1: Standard Manager (Decoy)
+        cursor.execute("INSERT INTO users VALUES (1, 'manager', 'admin123', 'manager@hyvebistro.ctf', 'Just a shift manager.')")
+        # ID 3: Fake Flag 1
+        cursor.execute("INSERT INTO users VALUES (3, 'sysadmin_test', 'test', 'admin_test@hyvebistro.ctf', 'HYVE_CTF{f4k3_fl4g_d0nt_subm1t}')")
+        # ID 7: Fake Flag 2
+        cursor.execute("INSERT INTO users VALUES (7, 'monitor', 'monitor', 'monitor@hyvebistro.ctf', 'HYVE_CTF{n0t_th3_r34l_0n3_k33p_l00k1ng}')")
+        # ID 10: Real Flag Holder
+        cursor.execute("INSERT INTO users VALUES (10, 'admin', 'super_secret', 'admin@hyvebistro.ctf', 'REAL_FLAG_PLACEHOLDER')")
+        # ID 1001: Guest
         cursor.execute("INSERT INTO users VALUES (1001, 'guest', 'guest', 'guest@example.com', 'No secrets here')")
         conn.commit()
         conn.close()

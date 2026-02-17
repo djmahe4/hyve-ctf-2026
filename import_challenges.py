@@ -32,10 +32,10 @@ def login_with_credentials(username, password):
     response = session.post(f"{CTFD_URL}/login", data=login_data)
     
     if 'incorrect' in response.text.lower() or response.status_code != 200:
-        print("[✗] Login failed! Check your credentials.")
+        print("[-] Login failed! Check your credentials.")
         sys.exit(1)
     
-    print("[✓] Logged in successfully")
+    print("[+] Logged in successfully")
     return session
 
 
@@ -81,10 +81,10 @@ def import_challenges(challenges_file, session_or_token, use_token=False):
         challenge_id = None
         if response.status_code == 200:
             challenge_id = response.json()['data']['id']
-            print(f"  ✓ Created challenge (ID: {challenge_id})")
+            print(f"  [+] Created challenge (ID: {challenge_id})")
         else:
             # Check if it already exists
-            print(f"  ⚠ Create failed ({response.status_code}), checking if exists...")
+            print(f"  [!] Create failed ({response.status_code}), checking if exists...")
             # Fetch all challenges to find ID by name (inefficient but works)
             # Or simplified: just list challenges and filter
             r = session.get(f"{CTFD_URL}/api/v1/challenges", headers=headers)
@@ -93,7 +93,7 @@ def import_challenges(challenges_file, session_or_token, use_token=False):
                 for c in chals:
                     if c['name'] == challenge['name']:
                         challenge_id = c['id']
-                        print(f"  ✓ Found existing challenge (ID: {challenge_id})")
+                        print(f"  [+] Found existing challenge (ID: {challenge_id})")
                         break
         
         if challenge_id:
@@ -133,7 +133,7 @@ def import_challenges(challenges_file, session_or_token, use_token=False):
                     headers=headers
                 )
             if challenge.get('hints'):
-                print(f"  ✓ Processed {len(challenge['hints'])} hint(s)")
+                print(f"  [+] Processed {len(challenge['hints'])} hint(s)")
             
             # Upload files if any
             for file_entry in challenge.get('files', []):
@@ -175,7 +175,7 @@ def import_challenges(challenges_file, session_or_token, use_token=False):
                          else:
                              print(f"    [-] Failed to upload {path_obj.name}: {resp.text}")
                 else:
-                    print(f"  ⚠ File not found locally: {file_path}")
+                    print(f"  [!] File not found locally: {file_path}")
 
         else:
             print(f"  [-] Failed to create or find challenge: {response.text}")
@@ -210,5 +210,5 @@ if __name__ == "__main__":
         import_challenges(challenges_file, session, use_token=False)
     
     print("\n" + "=" * 50)
-    print("[✓] Import complete!")
+    print("[+] Import complete!")
     print("=" * 50)

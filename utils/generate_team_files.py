@@ -98,52 +98,56 @@ def generate_files(output_dir):
     (output_dir / "crypto").mkdir(parents=True, exist_ok=True)
 
     # -------------------------------------------------------------------------
-    # OSINT: Generate mystery location image
-    landmark = next((l for l in LANDMARKS if "EIFFELTOWER" in l["keywords"]), LANDMARKS[0])
-    print(f"  > Generating OSINT challenge (Landmark: {landmark['name']})...")
+    # OSINT: Generate mystery location images
+    osint_challenges = [
+        {"landmark": LANDMARKS[0], "filename": "mystery_location.jpg"},  # Eiffel Tower
+        {"landmark": LANDMARKS[5], "filename": "unknown_highway.png"},  # Stockholm
+        {"landmark": LANDMARKS[4], "filename": "mystery_place.jpg"},     # Great Wall
+    ]
     
-    output_file = output_dir / "osint" / "mystery_location.jpg"
-    source_images_dir = PROJECT_ROOT / "challenges" / "osint" / "source_images"
-    download_success = False
-    
-    cand_local_path = source_images_dir / f"{landmark['name']}.jpg"
-    if cand_local_path.exists():
-         shutil.copy2(cand_local_path, output_file)
-         download_success = True
-    else:
-        try:
-            import requests # Imported here to be safe
-            print(f"    > Downloading {landmark['name']} via requests...")
-            resp = requests.get(landmark['url'], headers={'User-Agent': 'Mozilla/5.0'}, timeout=10)
-            if resp.status_code == 200:
-                with open(output_file, 'wb') as f:
-                    f.write(resp.content)
-                download_success = True
-            else:
-                print(f"    ✗ Download failed (HTTP {resp.status_code})")
-        except Exception as e:
-            print(f"    ✗ Download failed: {e}")
+    for chall in osint_challenges:
+        landmark = chall["landmark"]
+        filename = chall["filename"]
+        print(f"  > Generating OSINT challenge: {filename} (Landmark: {landmark['name']})...")
+        
+        output_file = output_dir / "osint" / filename
+        source_images_dir = PROJECT_ROOT / "challenges" / "osint" / "source_images"
+        download_success = False
+        
+        cand_local_path = source_images_dir / f"{landmark['name']}.jpg"
+        if cand_local_path.exists() or landmark.get("file").exists():
+             shutil.copy2(cand_local_path, output_file)
+             download_success = True
+        else:
+            try:
+                import requests 
+                print(f"    > Downloading {landmark['name']} via requests...")
+                resp = requests.get(landmark['url'], headers={'User-Agent': 'Mozilla/5.0'}, timeout=10)
+                if resp.status_code == 200:
+                    with open(output_file, 'wb') as f:
+                        f.write(resp.content)
+                    download_success = True
+                else:
+                    print(f"    ✗ Download failed (HTTP {resp.status_code})")
+            except Exception as e:
+                print(f"    ✗ Download failed: {e}")
 
-    if download_success and shutil.which('exiftool'):
-        exif_cmd = [
-            'exiftool',
-            f'-GPSLatitude={landmark["lat"]}',
-            f'-GPSLatitudeRef={landmark["lat_ref"]}',
-            f'-GPSLongitude={landmark["lon"]}',
-            f'-GPSLongitudeRef={landmark["lon_ref"]}',
-            '-overwrite_original',
-            str(output_file)
-        ]
-        try:
-            subprocess.run(exif_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            print(f"    ✓ Embedded GPS coordinates")
-        except: pass
-    elif download_success:
-        print("    ! Skipping EXIF embedding (exiftool not found)")
-
-    # landmark = LANDMARKS[-1]
-
-    # flag = get_flag("")
+        if download_success and shutil.which('exiftool'):
+            exif_cmd = [
+                'exiftool',
+                f'-GPSLatitude={landmark["lat"]}',
+                f'-GPSLatitudeRef={landmark["lat_ref"]}',
+                f'-GPSLongitude={landmark["lon"]}',
+                f'-GPSLongitudeRef={landmark["lon_ref"]}',
+                '-overwrite_original',
+                str(output_file)
+            ]
+            try:
+                subprocess.run(exif_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                print(f"    ✓ Embedded GPS coordinates")
+            except: pass
+        elif download_success:
+            print("    [!] Skipping EXIF embedding (exiftool not found)")
 
     # -------------------------------------------------------------------------
     # STEGO: Embed flag in image
@@ -179,20 +183,20 @@ def generate_files(output_dir):
             subprocess.run(stego_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             if secret_file.exists():
                 os.remove(secret_file)
-            print(f"    ✓ Embedded flag with Steghide")
+            print(f"    [+] Embedded flag with Steghide")
         except Exception as e:
-            print(f"    ✗ Steghide failed: {e}")
+            print(f"    [-] Steghide failed: {e}")
     elif cat_ready:
-        print("    ! Skipping Steghide embedding (steghide binary not found)")
+        print("    [!] Skipping Steghide embedding (steghide binary not found)")
     
     password = "2026ftc"
     try:
         wordlist_path = output_dir / "stego" / "wordlist.txt"
         with open(wordlist_path, 'w', encoding='utf-8') as f:
             f.write(f"purr\nwhiskers\n{password}\nkitty\nscratch\n")
-        print(f"    ✓ Created Stego image and wordlist")
+        print(f"    [+] Created Stego image and wordlist")
     except Exception as e:
-        print(f"    ! Failed to write wordlist: {e}")
+        print(f"    [!] Failed to write wordlist: {e}")
 
     # -------------------------------------------------------------------------
     # NETWORK: Generate PCAP
@@ -202,9 +206,9 @@ def generate_files(output_dir):
         # Pass team_id="1" since we are in global mode, and the output path
         cmd = [sys.executable, str(PROJECT_ROOT / "challenges" / "network" / "create_pcap.py"), "1", str(pcap_out)]
         subprocess.run(cmd, check=True)
-        print(f"    ✓ Generated PCAP")
+        print(f"    [+] Generated PCAP")
     except Exception as e:
-         print(f"    ✗ Network challenge generation failed: {e}")
+         print(f"    [-] Network challenge generation failed: {e}")
 
     # -------------------------------------------------------------------------
     # CRYPTO: Generate Base64 + ROT13 file
@@ -236,7 +240,7 @@ def main():
     output_dir.mkdir(parents=True, exist_ok=True)
     generate_files(output_dir)
     
-    print(f"\n[✓] All done!")
+    print(f"\n[+] All done!")
 
 if __name__ == '__main__':
     main()

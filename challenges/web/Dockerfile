@@ -10,6 +10,7 @@ WORKDIR /app
 
 # Copy application files
 COPY challenges/web/ /app/
+COPY utils/ /app/utils/
 
 # Waiting entrypoint script
 RUN apt-get update && apt-get install -y sed && \

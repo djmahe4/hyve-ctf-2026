@@ -13,7 +13,7 @@ challenges:
 
       Download the image from the Files tab.
     value: 100
-    type: dynamic
+    type: standard
     state: visible
     max_attempts: 0
     flags:
@@ -35,7 +35,7 @@ challenges:
       
       Download the files from the Files tab.
     value: 100
-    type: dynamic
+    type: standard
     state: visible
     max_attempts: 0
     flags:
@@ -58,7 +58,7 @@ challenges:
       
       Hint: This cipher was used by Julius Caesar himself.
     value: 100
-    type: decay
+    type: standard
     state: visible
     max_attempts: 0
     flags:
@@ -73,7 +73,7 @@ challenges:
 
       Retrieve the internal bypass token.
     value: 200
-    type: decay
+    type: standard
     state: visible
     max_attempts: 0
     flags:
@@ -89,7 +89,7 @@ challenges:
       Only 'Gold Members' can see special reward codes on their profile.
       Target: http://localhost:8080/profile
     value: 200
-    type: decay
+    type: standard
     state: visible
     max_attempts: 0
     flags:
@@ -106,7 +106,7 @@ challenges:
       
       **Note:** Download the PCAP file from the Files tab.
     value: 200
-    type: decay
+    type: standard
     state: visible
     max_attempts: 0
     hints:
@@ -126,7 +126,7 @@ challenges:
       The Chef encoded his secret recipe.
       Encoded string: VTBac1YxSldPVVJXUlZvM1dXMUdlbHBVV1RCWU1sSnNXVEk1YTFwWFVtWmpNMVpxV1RKV2VtTXpNRDBLCg==
     value: 200
-    type: decay
+    type: standard
     state: visible
     max_attempts: 0
     flags:
@@ -141,7 +141,7 @@ challenges:
 
       Execute script to reveal the secret search token.
     value: 300
-    type: decay
+    type: standard
     state: visible
     max_attempts: 0
     flags:
@@ -156,7 +156,7 @@ challenges:
 
       View the note for order #1.
     value: 300
-    type: decay
+    type: standard
     state: visible
     max_attempts: 0
     flags:
@@ -169,7 +169,7 @@ challenges:
       The most secret ingredient source is hidden in plain sight.
       Target: http://localhost:8080/secret-ingredients
     value: 100
-    type: decay
+    type: standard
     state: visible
     max_attempts: 0
     flags:

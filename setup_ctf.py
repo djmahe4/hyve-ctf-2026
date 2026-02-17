@@ -16,6 +16,7 @@ import subprocess
 import os
 
 CTFD_URL = "http://localhost:8001"
+PROJECT_ROOT = Path(__file__).parent.resolve()
 
 def check_dependencies():
     """Check for required dependencies"""

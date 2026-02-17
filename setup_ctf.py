@@ -382,9 +382,10 @@ def import_challenges(token):
     else:
         print(f"[✗] Challenge import failed:\n{result.stderr}")
 
-def generate_files():
+def generate_files(participant_count, create_admin_team=True):
     """Generate static challenge files using Docker"""
-    print(f"\n[*] Generating static challenge files...")
+    total_teams = participant_count + (1 if create_admin_team else 0)
+    print(f"\n[*] Generating static challenge files for {total_teams} teams...")
     print("    This will run in a Docker container with Linux tools...")
     
     # Get absolute paths
@@ -400,7 +401,7 @@ def generate_files():
         '''
         apt-get update && apt-get install -y steghide curl wget libimage-exiftool-perl imagemagick && \
         pip install scapy pyyaml && \
-        python /utils/generate_team_files.py --output /challenges
+        python /utils/generate_team_files.py --count {total_teams} --output /challenges
         '''
     ]
     
@@ -547,7 +548,7 @@ Examples:
     
     # Step 5: Generate static challenge files
     # Must be done BEFORE import so files exist for upload
-    generate_files()
+    generate_files(PARTICIPANT_TEAMS, CREATE_ADMIN_TEST_TEAM)
     
     # Step 6: Import challenges (and upload files)
     import_challenges(token)

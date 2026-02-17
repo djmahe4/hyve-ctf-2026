@@ -11,7 +11,8 @@ challenges:
       Flag format: HYVE_CTF{CITY_COUNTRY_LANDMARK}
       Example: HYVE_CTF{LONDON_UK_BIGBEN}
 
-      Download the image from the Files tab.
+      Download the image from the Files tab or via the authenticated proxy:
+      http://localhost:8082/files/osint/mystery_location.jpg
     value: 100
     type: dynamic
     state: visible
@@ -23,7 +24,7 @@ challenges:
       - location: challenges/osint/mystery_location.jpg
     hints:
       - content: "EXIF data might reveal the coordinates."
-        cost: 10
+        cost: 0
 
   - name: "Secret Ingredient List"
     category: Steganography
@@ -33,7 +34,9 @@ challenges:
       
       Hint: The password is in the provided wordlist (which is now shorter for your convenience).
       
-      Download the files from the Files tab.
+      Download the files from the Files tab or via the authenticated proxy:
+      - http://localhost:8082/files/stego/cat.jpeg
+      - http://localhost:8082/files/stego/wordlist.txt
     value: 100
     type: dynamic
     state: visible
@@ -46,7 +49,7 @@ challenges:
       - location: challenges/stego/wordlist.txt
     hints:
       - content: "Use steghide to extract the data."
-        cost: 10
+        cost: 0
 
   - name: "Bistro Menu Cipher"
     category: Cryptography
@@ -81,7 +84,7 @@ challenges:
         type: static
     hints:
       - content: "Standard SQLi characters like ' might break the query."
-        cost: 40
+        cost: 0
 
   - name: "Gold Membership"
     category: Web
@@ -97,14 +100,15 @@ challenges:
         type: static
     hints:
       - content: "Check your cookies. Can you change your role?"
-        cost: 40
+        cost: 0
 
   - name: "Bistro Traffic Audit"
     category: Network
     description: |
       Analyze the bistro's internal traffic to find cleartext customer credentials.
       
-      **Note:** Download the PCAP file from the Files tab. You must be logged in to download.
+      **Note:** Download the PCAP file from the Files tab (authenticated) or via the proxy:
+      http://localhost:8082/files/network/cleartext_traffic.pcap
     value: 200
     type: decay
     state: visible
@@ -113,7 +117,7 @@ challenges:
       - flag: "HYVE_CTF{cl34rt3xt_cr3ds_f0und}"
         type: static
     files:
-      - location: /challenges/network/cleartext_traffic.pcap
+      - location: challenges/network/cleartext_traffic.pcap
 
   - name: "Chef's Secret Recipe"
     category: Cryptography

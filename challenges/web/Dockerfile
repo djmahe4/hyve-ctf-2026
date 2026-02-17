@@ -8,9 +8,13 @@ RUN pip install --no-cache-dir flask
 # Create app directory
 WORKDIR /app
 
+# Copy application files
+COPY challenges/web/ /app/
+
 # Waiting entrypoint script
-COPY challenges/web/entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
+RUN apt-get update && apt-get install -y sed && \
+    sed -i 's/\r$//' /app/entrypoint.sh && \
+    chmod +x /app/entrypoint.sh
 
 # Expose port
 EXPOSE 8080

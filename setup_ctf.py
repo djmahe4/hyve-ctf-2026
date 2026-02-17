@@ -223,12 +223,20 @@ def get_api_token(session):
         if meta:
             csrf_token = meta.get('content')
             
-        # Method B: Script variable
+        # Method B: Script variable (Most reliable in modern CTFd)
         if not csrf_token:
             import re
-            match = re.search(r'csrf_nonce\s*=\s*"([^"]+)"', resp.text)
-            if match:
-                csrf_token = match.group(1)
+            # Try multiple common patterns
+            patterns = [
+                r'csrfNonce["\']:\s*["\']([^"\']+)["\']',
+                r'csrf_nonce["\']:\s*["\']([^"\']+)["\']',
+                r'csrf_nonce\s*=\s*["\']([^"\']+)["\']'
+            ]
+            for pattern in patterns:
+                match = re.search(pattern, resp.text)
+                if match:
+                    csrf_token = match.group(1)
+                    break
 
         # Method C: Hidden input
         if not csrf_token:
@@ -249,8 +257,7 @@ def get_api_token(session):
         print("    [!] Could not find CSRF token. The session might be unauthenticated.")
         csrf_token = ''
     else:
-        # print(f"    ✓ Found CSRF: {csrf_token[:10]}...")
-        pass
+        print(f"    ✓ Found CSRF token: {csrf_token[:8]}...")
 
     # Create token via API
     token_data = {
@@ -260,7 +267,8 @@ def get_api_token(session):
     
     headers = {
         'Content-Type': 'application/json',
-        'CSRF-Token': csrf_token
+        'CSRF-Token': csrf_token,
+        'X-CSRF-Token': csrf_token
     }
     
     try:
@@ -274,10 +282,12 @@ def get_api_token(session):
             resp_json = response.json()
             if 'success' in resp_json and resp_json['success']:
                 token = resp_json['data']['value']
-                print(f"[✓] Token generated: {token[:20]}...")
+                print(f"[✓] Token generated!")
                 return token
         
         print(f"[✗] Token generation failed. Status: {response.status_code}")
+        if response.status_code == 403:
+             print("    [!] Forbidden: Likely invalid CSRF or expired session.")
         # print(f"    Response: {response.text[:200]}")
         return None
         

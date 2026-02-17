@@ -7,6 +7,17 @@ echo "  Hyve CTF 2026 - Infrastructure Setup"
 echo "=========================================="
 echo ""
 
+# Detector for docker-compose vs docker compose
+if docker compose version >/dev/null 2>&1; then
+    DOCKER_COMPOSE="docker compose"
+elif docker-compose version >/dev/null 2>&1; then
+    DOCKER_COMPOSE="docker-compose"
+else
+    echo "[!] Error: Neither 'docker compose' nor 'docker-compose' found."
+    echo "    Please ensure Docker is installed and WSL integration is enabled."
+    exit 1
+fi
+
 # Install native dependencies if in WSL/Linux
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     echo "[*] Installing native dependencies (requires sudo)..."
@@ -17,7 +28,7 @@ fi
 # Start CTFd
 echo "[*] Starting CTFd platform (Docker)..."
 cd ctfd
-docker-compose up -d
+$DOCKER_COMPOSE up -d
 cd ..
 echo "    ✓ CTFd started"
 echo ""
@@ -25,7 +36,7 @@ echo ""
 # Start challenge web services
 echo "[*] Starting challenge web services (Docker)..."
 cd deployment/docker
-docker-compose -f docker-compose.challenges.yml up -d
+$DOCKER_COMPOSE -f docker-compose.challenges.yml up -d
 cd ../..
 echo "    ✓ Challenge web services started"
 echo ""

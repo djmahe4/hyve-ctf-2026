@@ -31,6 +31,17 @@ done
 echo "Stopping Hyve CTF 2026..."
 echo ""
 
+# Detector for docker-compose vs docker compose
+if docker compose version >/dev/null 2>&1; then
+    DOCKER_COMPOSE="docker compose"
+elif docker-compose version >/dev/null 2>&1; then
+    DOCKER_COMPOSE="docker-compose"
+else
+    # If docker is not running, we might still want to clean up local data
+    # but we'll set it to a dummy for now
+    DOCKER_COMPOSE="docker compose"
+fi
+
 if [ "$REMOVE_DATA" = true ]; then
     echo "⚠️  WARNING: This will remove all containers, volumes, and data!"
     echo "   - CTFd database (all users, teams, submissions)"
@@ -48,9 +59,9 @@ fi
 echo "[*] Stopping CTFd platform..."
 cd ctfd
 if [ "$REMOVE_DATA" = true ]; then
-    docker-compose down -v  # Remove volumes
+    $DOCKER_COMPOSE down -v  # Remove volumes
 else
-    docker-compose down
+    $DOCKER_COMPOSE down
 fi
 cd ..
 echo "    ✓ CTFd stopped"
@@ -60,9 +71,9 @@ echo ""
 echo "[*] Stopping challenge infrastructure..."
 cd deployment/docker
 if [ "$REMOVE_DATA" = true ]; then
-    docker-compose -f docker-compose.challenges.yml down -v  # Remove volumes
+    $DOCKER_COMPOSE -f docker-compose.challenges.yml down -v  # Remove volumes
 else
-    docker-compose -f docker-compose.challenges.yml down
+    $DOCKER_COMPOSE -f docker-compose.challenges.yml down
 fi
 cd ../..
 echo "    ✓ Challenge services stopped"

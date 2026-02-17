@@ -494,8 +494,8 @@ def main():
     # Default configuration
     DEFAULT_PARTICIPANT_TEAMS = 20
     DEFAULT_CREATE_ADMIN_TEST_TEAM = True
-    DEFAULT_CTF_DURATION_HOURS = 2
-    DEFAULT_CTF_START_OFFSET_MINUTES = 5
+    DEFAULT_CTF_DURATION_HOURS = 3
+    DEFAULT_CTF_START_OFFSET_MINUTES = 5 # TODO: set this to 10
     parser = argparse.ArgumentParser(
         description='Automated CTFd Setup for Hyve CTF 2026',
         formatter_class=argparse.RawDescriptionHelpFormatter,

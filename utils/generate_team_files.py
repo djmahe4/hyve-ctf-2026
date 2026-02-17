@@ -195,6 +195,7 @@ def generate_files(output_dir):
     print(f"    ✓ Generated encoded text file")
 
 
+
 def main():
     parser = argparse.ArgumentParser(description='Generate global static challenge files for CTF')
     parser.add_argument('--output', help='Output directory')

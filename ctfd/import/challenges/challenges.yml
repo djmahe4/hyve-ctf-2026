@@ -109,6 +109,11 @@ challenges:
     type: decay
     state: visible
     max_attempts: 0
+    hints:
+      - content: "Use Wireshark to analyze the traffic."
+        cost: 0
+      - content: "Look out for HASH hidden in authentication requests."
+        cost: 0
     flags:
       - flag: "HYVE_CTF{cl34rt3xt_cr3ds_f0und}"
         type: static

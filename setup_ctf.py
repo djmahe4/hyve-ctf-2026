@@ -27,22 +27,22 @@ def check_dependencies():
         print("[✗] Docker is not installed")
         print("    Install from: https://docs.docker.com/get-docker/")
         return False
-    print("  ✓ Docker found")
+    print("  [+] Docker found")
     
     # Check Docker Compose
     if not shutil.which('docker-compose'):
-        print("[✗] Docker Compose is not installed")
+        print("[-] Docker Compose is not installed")
         print("    Install from: https://docs.docker.com/compose/install/")
         return False
-    print("  ✓ Docker Compose found")
+    print("  [+] Docker Compose found")
     
     # Check Python packages
     try:
         import requests
         import bs4
-        print("  ✓ Python dependencies installed")
+        print("  [+] Python dependencies installed")
     except ImportError as e:
-        print(f"[✗] Missing Python dependency: {e}")
+        print(f"[-] Missing Python dependency: {e}")
         print("    Run: pip install -r requirements.txt")
         return False
     
@@ -55,12 +55,12 @@ def wait_for_ctfd():
         try:
             response = requests.get(f"{CTFD_URL}/", timeout=2)
             if response.status_code == 200:
-                print("[✓] CTFd is ready!")
+                print("[+] CTFd is ready!")
                 return True
         except:
             pass
         time.sleep(2)
-    print("[✗] CTFd failed to start")
+    print("[-] CTFd failed to start")
     return False
 
 def setup_ctfd():

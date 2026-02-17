@@ -157,7 +157,11 @@ def import_challenges(challenges_file, session_or_token, use_token=False):
                          else:
                              # For session auth, we need the nonce / CSRF token
                              csrf_token = session.cookies.get('nonce')
-                             if csrf_token:
+                             if not csrf_token:
+                                 print("    [!] Could not find CSRF token. The session might be unauthenticated.")
+                                 csrf_token = ''
+                             else:
+                                 print(f"    [+] Found CSRF token: {csrf_token[:8]}...")
                                  upload_headers['CSRF-Token'] = csrf_token
 
                          resp = session.post(
@@ -167,14 +171,14 @@ def import_challenges(challenges_file, session_or_token, use_token=False):
                              headers=upload_headers
                          )
                          if resp.status_code == 200:
-                             print(f"    ✓ Uploaded {path_obj.name}")
+                             print(f"    [+] Uploaded {path_obj.name}")
                          else:
-                             print(f"    ✗ Failed to upload {path_obj.name}: {resp.text}")
+                             print(f"    [-] Failed to upload {path_obj.name}: {resp.text}")
                 else:
                     print(f"  ⚠ File not found locally: {file_path}")
 
         else:
-            print(f"  ✗ Failed to create or find challenge: {response.text}")
+            print(f"  [-] Failed to create or find challenge: {response.text}")
 
 
 if __name__ == "__main__":

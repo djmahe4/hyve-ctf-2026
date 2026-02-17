@@ -17,33 +17,6 @@ services:
     networks:
       - challenge_network
 
-  challenge-files:
-    image: nginx:alpine
-    container_name: ctf-file-server
-    ports:
-      - "8081:80"
-    volumes:
-      - ../../challenges:/usr/share/nginx/html:ro
-    restart: unless-stopped
-    networks:
-      - challenge_network
-
-  file-proxy:
-    build:
-      context: .
-      dockerfile: Dockerfile.file-proxy
-    container_name: ctf-file-proxy
-    ports:
-      - "8082:8082"
-    volumes:
-      - ../../challenges:/challenges:ro
-    environment:
-      - CTFD_URL=http://ctfd:8000
-    restart: unless-stopped
-    networks:
-      - challenge_network
-      - ctfd_network
-
 networks:
   challenge_network:
     driver: bridge

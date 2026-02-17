@@ -11,13 +11,13 @@ services:
       - UPLOAD_FOLDER=/var/uploads
       - DATABASE_URL=mysql+pymysql://ctfd:ctfd_password@db/ctfd
       - REDIS_URL=redis://cache:6379
-      - SECRET_KEY=HivyeCTF2026SecretKeyForSessions
+      - SECRET_KEY=HyveCTF2026SecretKeyForSessions
       - WORKERS=4
       - LOG_FOLDER=/var/log/CTFd
       - ACCESS_LOG=-
       - ERROR_LOG=-
       - REVERSE_PROXY=true
-      - SECRET_FLAG_KEY=HivyeS3cretKey2026
+      - SECRET_FLAG_KEY=HyveS3cretKey2026
     volumes:
       - ./data/CTFd/logs:/var/log/CTFd
       - ./data/CTFd/uploads:/var/uploads

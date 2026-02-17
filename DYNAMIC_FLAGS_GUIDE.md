@@ -1,6 +1,6 @@
-# Hivye CTF 2026: Dynamic Flag Mechanism Guide
+# Hyve CTF 2026: Dynamic Flag Mechanism Guide
 
-This document explains how flags are generated and validated in the Hivye CTF 2026 platform using the custom `DynamicXORKey` plugin.
+This document explains how flags are generated and validated in the Hyve CTF 2026 platform using the custom `DynamicXORKey` plugin.
 
 ## 1. Flag Format
 All flags follow a strict format to ensure parsing consistency and security:
@@ -71,7 +71,7 @@ A common question is whether flags are pre-generated when a user is created in C
     1. The orchestrator (e.g., a custom file-serving container) identifies the requesting session's Team ID.
     2. It executes the creation script (`create_stego.sh` or `create_pcap.py`) passing the `TEAM_ID` as a parameter.
     3. The file is built in memory or temporary storage and delivered to the user.
-- **Note**: For Hivye CTF 2026, the provided scripts support this `TEAM_ID` parameter for easy integration with your CI/CD or file server.
+- **Note**: For Hyve CTF 2026, the provided scripts support this `TEAM_ID` parameter for easy integration with your CI/CD or file server.
 
 #### C. Submission Validation (Server-Side)
 - **Trigger**: When a player clicks "Submit" on CTFd.

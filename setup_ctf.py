@@ -116,7 +116,7 @@ def setup_ctfd():
     # Newer CTFd versions might require mode/user/event in one go, but let's be robust
     setup_data = {
         'nonce': nonce,
-        'ctf_name': 'Hivye CTF 2026',
+        'ctf_name': 'Hyve CTF 2026',
         'ctf_description': 'Bistro-themed Capture The Flag',
         'user_mode': 'teams',
         'name': 'Sin444',
@@ -382,40 +382,33 @@ def import_challenges(token):
     else:
         print(f"[✗] Challenge import failed:\n{result.stderr}")
 
-def generate_team_files(participant_count, create_admin_team):
-    """Generate team-specific challenge files using Docker"""
-    total_teams = participant_count + (1 if create_admin_team else 0)
-    
-    print(f"\n[*] Generating files for {total_teams} team(s)...")
+def generate_files():
+    """Generate static challenge files using Docker"""
+    print(f"\n[*] Generating static challenge files...")
     print("    This will run in a Docker container with Linux tools...")
     
     # Get absolute paths
     challenges_dir = Path('challenges').absolute()
     utils_dir = Path('utils').absolute()
     
-    # Get SECRET_FLAG_KEY from .env
-    secret_key = os.getenv('SECRET_FLAG_KEY', 'default_secret_key_change_me')
-    
     docker_cmd = [
         'docker', 'run', '--rm',
         '-v', f'{challenges_dir}:/challenges',
         '-v', f'{utils_dir}:/utils',
-        '-e', f'SECRET_FLAG_KEY={secret_key}',
         'python:3.9-slim',
         'bash', '-c',
-        f'''
+        '''
         apt-get update && apt-get install -y steghide curl wget libimage-exiftool-perl && \
         pip install scapy pyyaml && \
-        python /utils/generate_team_files.py --count {total_teams}
+        python /utils/generate_team_files.py --output /challenges
         '''
     ]
     
-    result = subprocess.run(docker_cmd)
-    
-    if result.returncode == 0:
-        print(f"[✓] Team files generated successfully!")
-    else:
-        print(f"[✗] Team file generation failed!")
+    try:
+        result = subprocess.run(docker_cmd, check=True)
+        print(f"[✓] Static files generated successfully!")
+    except subprocess.CalledProcessError:
+        print(f"[✗] File generation failed!")
 
 def deploy_web_challenges():
     """Deploy web challenge files to running container"""
@@ -456,7 +449,7 @@ def main():
     DEFAULT_CTF_DURATION_HOURS = 2
     DEFAULT_CTF_START_OFFSET_MINUTES = 5
     parser = argparse.ArgumentParser(
-        description='Automated CTFd Setup for Hivye CTF 2026',
+        description='Automated CTFd Setup for Hyve CTF 2026',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog='''
 Examples:
@@ -479,11 +472,7 @@ Examples:
         default=DEFAULT_PARTICIPANT_TEAMS,
         help=f'Number of participant teams (default: {DEFAULT_PARTICIPANT_TEAMS})'
     )
-    parser.add_argument(
-        '--no-admin-team',
-        action='store_true',
-        help='Do not create admin test team'
-    )
+
     parser.add_argument(
         '--duration',
         type=int,
@@ -496,12 +485,10 @@ Examples:
         default=DEFAULT_CTF_START_OFFSET_MINUTES,
         help=f'Minutes before CTF starts (default: {DEFAULT_CTF_START_OFFSET_MINUTES})'
     )
-    parser.add_argument(
-        '--skip-deps',
-        action='store_true',
-        help='Skip dependency checks'
-    )
-    
+    parser.add_argument('--skip-deps', action='store_true', help='Skip dependency checks')
+    parser.add_argument('--skip-users', action='store_true', help='Skip user and team creation')
+    parser.add_argument('--no-admin-team', action='store_true', help='Do not create the admin test team')
+
     args = parser.parse_args()
 
     global CTF_DURATION_HOURS, CTF_START_OFFSET_MINUTES
@@ -511,15 +498,17 @@ Examples:
     CREATE_ADMIN_TEST_TEAM = not args.no_admin_team
     CTF_DURATION_HOURS = args.duration
     CTF_START_OFFSET_MINUTES = args.start_offset
+    SKIP_USERS = args.skip_users
     
     print("=" * 60)
-    print("  Hivye CTF 2026 - Automated Setup")
+    print("  Hyve CTF 2026 - Automated Setup")
     print("=" * 60)
     print(f"\nConfiguration:")
     print(f"  Participant Teams: {PARTICIPANT_TEAMS}")
     print(f"  Admin Test Team: {'Yes' if CREATE_ADMIN_TEST_TEAM else 'No'}")
     print(f"  CTF Duration: {CTF_DURATION_HOURS} hours")
     print(f"  Start Offset: {CTF_START_OFFSET_MINUTES} minutes")
+    print(f"  Skip Users: {'Yes' if SKIP_USERS else 'No'}")
     
     # Step 0: Check dependencies
     if not args.skip_deps:
@@ -551,13 +540,17 @@ Examples:
         sys.exit(1)
     
     # Step 4: Create teams
-    create_teams(token, PARTICIPANT_TEAMS, CREATE_ADMIN_TEST_TEAM)
+    if not SKIP_USERS:
+        create_teams(token, PARTICIPANT_TEAMS, CREATE_ADMIN_TEST_TEAM)
+    else:
+        print("\n[*] Skipping team creation as requested.")
     
-    # Step 5: Import challenges
+    # Step 5: Generate static challenge files
+    # Must be done BEFORE import so files exist for upload
+    generate_files()
+    
+    # Step 6: Import challenges (and upload files)
     import_challenges(token)
-    
-    # Step 6: Generate team files
-    generate_team_files(PARTICIPANT_TEAMS, CREATE_ADMIN_TEST_TEAM)
     
     # Step 7: Deploy Web Challenges
     deploy_web_challenges()

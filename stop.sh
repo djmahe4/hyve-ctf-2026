@@ -28,7 +28,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-echo "Stopping Hivye CTF 2026..."
+echo "Stopping Hyve CTF 2026..."
 echo ""
 
 if [ "$REMOVE_DATA" = true ]; then
@@ -72,10 +72,10 @@ echo ""
 if [ "$REMOVE_DATA" = true ]; then
     echo "[*] Removing generated team files..."
     if [ -d "challenges/teams" ]; then
-        # Use docker to remove team files (created by docker)
-        docker run --rm -v $(pwd)/challenges/teams:/teams alpine sh -c "rm -rf /teams/*"
-        # Also remove the directory itself if possible, or just leave it empty
-        rm -rf challenges/teams 2>/dev/null || docker run --rm -v $(pwd)/challenges:/challenges alpine sh -c "rm -rf /challenges/teams"
+        # Use docker to remove to avoid permission issues
+        docker run --rm -v "$(pwd)/challenges/teams:/data" alpine sh -c "rm -rf /data/*"
+        # Then remove the directory itself if empty/possible, or just leave empty dir
+        rm -rf challenges/teams
         echo "    ✓ Team files removed"
     else
         echo "    ℹ No team files to remove"
@@ -84,8 +84,9 @@ if [ "$REMOVE_DATA" = true ]; then
     
     echo "[*] Removing CTFd persistent data..."
     if [ -d "ctfd/data" ]; then
-        # Use docker to remove data since it was created by docker (root permissions)
-        docker run --rm -v $(pwd)/ctfd/data:/data alpine sh -c "rm -rf /data/*"
+        # Use docker to remove to avoid permission issues
+        docker run --rm -v "$(pwd)/ctfd/data:/data" alpine sh -c "rm -rf /data/*"
+        rm -rf ctfd/data
         echo "    ✓ CTFd data removed (database, uploads, logs)"
     else
         echo "    ℹ No CTFd data to remove"

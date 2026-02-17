@@ -1,10 +1,10 @@
-# Hivye CTF 2026
+# Hyve CTF 2026
 
 A 2-hour Capture The Flag (CTF) competition featuring 10 challenges across multiple security domains.
 
 ## Description
 
-Hivye CTF 2026 is a beginner to intermediate level CTF competition designed to test skills in OSINT, steganography, cryptography, web exploitation, and network analysis. The competition runs for 2 hours and includes 10 challenges with a total of 1800 points available.
+Hyve CTF 2026 is a beginner to intermediate level CTF competition designed to test skills in OSINT, steganography, cryptography, web exploitation, and network analysis. The competition runs for 2 hours and includes 10 challenges with a total of 1800 points available.
 
 ## Challenge Categories
 
@@ -58,4 +58,4 @@ For issues, questions, or contributions, please open an issue on GitHub.
 
 ## Credits
 
-Created for Hivye CTF 2026 competition.
+Created for Hyve CTF 2026 competition.

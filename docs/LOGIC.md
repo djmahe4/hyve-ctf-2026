@@ -1,6 +1,6 @@
-# Hivye CTF 2026 - System Logic & Integrations
+# Hyve CTF 2026 - System Logic & Integrations
 
-This document details the internal mechanisms, API flows, and service integrations that power the Hivye CTF platform.
+This document details the internal mechanisms, API flows, and service integrations that power the Hyve CTF platform.
 
 ## 1. Automated Setup Flow (`setup_ctf.py`)
 
@@ -8,58 +8,37 @@ The `setup_ctf.py` script is the central orchestrator that automates the transit
 
 ### API Orchestration
 The script uses `requests` to interact with the CTFd API:
-1. **Initial Setup**: Checks for the `/setup` endpoint. If found, it fetches the page, extracts the CSRF `nonce`, and submits a POST request to configure the admin account, event name, and timing.
+1. **Initial Setup**: Checks for the `/setup` endpoint. If found, it fetches the page, extracts the CSRF `nonce`, and submits a POST request to configure the admin account, event name ("Hyve CTF"), and timing.
 2. **Authentication**: Performs a login to establish a session, then POSTs to `/api/v1/tokens` to generate a persistent **Admin API Token**.
-3. **Team Creation**: Loops to create 20 participant teams via `POST /api/v1/teams`, generating unique email/password combinations for each.
-4. **Challenge Import**: Triggers the `import_challenges.py` script which parses `challenges.yml` and makes `POST /api/v1/challenges` calls. It correctly handles dynamic challenge types by providing `initial`, `minimum`, and `decay` values.
+3. **Team Creation**: Loops to create participant teams via `POST /api/v1/teams`, generating unique credentials for each.
+4. **Challenge Import**: 
+    *   Generates static challenge files locally (OSINT images, PCAPs, etc.) using `generate_team_files.py`.
+    *   Triggers `import_challenges.py` which parses `challenges.yml`.
+    *   Creates challenges via `POST /api/v1/challenges`.
+    *   **Uploads Files**: Directly uploads the generated challenge files to CTFd via the `/api/v1/files` endpoint, associating them with their respective challenges.
 
-## 2. Dynamic Flag Mechanism
+## 2. Static Challenge Generation
 
-To prevent flag sharing between teams, every flag is uniquely generated based on the Team ID.
-
-### The Algorithm (`utils/flag_gen.py`)
-```python
-input_str = f"{base_content}|{team_id}|{secret_key}"
-xor_result = 0
-for char in input_str:
-    xor_result ^= ord(char)
-hash_suffix = format(xor_result, '08x')
-full_flag = f"HYVE_CTF{{base_content_{hash_suffix}}}"
-```
-- **Base Content**: The static part of the flag (e.g., `sql_1nj3ct10n_b4s1c`).
-- **Secret Key**: A server-side environment variable `SECRET_FLAG_KEY`.
-
-### Validation Plugin
-A custom CTFd plugin (`DynamicXORKey`) is used to validate submissions. When a user submits a flag, the plugin:
-1. Retrieves the user's current `team_id`.
-2. Re-calculates the expected hash for that team.
-3. Compares it with the submitted string.
-
-## 3. Team File Distribution System
-
-This system ensures that when a user downloads a challenge file (e.g., a PCAP or JPEG), they receive the version containing *their* team's flag.
-
-### The File Proxy (`deployment/docker/file_proxy.py`)
-The `file-proxy` service (Port 8082) acts as an authenticated middleware:
-- **Session Validation**: It receives the user's CTFd session cookie and validates it against CTFd's `/api/v1/users/me` endpoint.
-- **Path Resolution**: Once authenticated, it extracts the `team_id` and maps the request:
-  `GET /files/stego/cat.jpeg` -> `/challenges/teams/team{team_id}/stego/cat.jpeg`
-- **Security**: Prevents directory traversal and rejects unauthorized requests.
+To ensure consistency and simplify infrastructure, challenge files are generated statically before import.
 
 ### Asset Generation (`utils/generate_team_files.py`)
-This script pre-generates the file-system structure:
-1. Creates `challenges/teams/team1/` through `team21/`.
-2. Executes category-specific scripts (`create_stego.sh`, `create_pcap.py`, `create_crypto.py`).
-3. These scripts take a `TEAM_ID` argument and use the `flag_gen` utility to bake the correct flag into the generated asset.
+This script produces a single set of files in the `challenges/` directory:
+1.  **OSINT**: Downloads a random landmark image (e.g., Eiffel Tower) and embeds GPS coordinates.
+2.  **Steganography**: Creates a `cat.jpeg` with a hidden flag embedded via `steghide` and generates a corresponding wordlist.
+3.  **Network**: Generates a PCAP file containing simulated traffic and a cleartext flag.
+4.  **Crypto**: Creates a multi-layer Base64 encoded text file.
 
-## 4. Service Mesh (Docker Integration)
+These files are then uploaded to CTFd, meaning all teams download the exact same file from the CTFd interface.
+
+## 3. Service Mesh (Docker Integration)
 
 The platform is split across two Docker Compose files connected by a shared network:
-- **`ctfd_network`**: An external network created by the CTFd stack that allows the `file-proxy` and `challenge-web` services to verify sessions and resolve internal hostnames.
+- **`ctfd_network`**: An external network created by the CTFd stack that allows the `challenge-web` service to be accessible.
 - **Linkages**: 
-    - `file-proxy` -> `ctfd:8000` (for session validation)
     - `setup_ctf.py` -> `localhost:8001` (external access to CTFd)
-## 5. Visual Workflows
+    - `ctf-web-challenges` -> `ctfd_network` (isolated web challenges)
+
+## 4. Visual Workflows
 
 ### System Architecture
 ```mermaid
@@ -67,61 +46,32 @@ graph TD
     User([User])
     
     subgraph "SaaS Layer (CTFd)"
-        LB[Nginx Proxy]
         CTFd[CTFd App]
         DB[(MariaDB)]
         Cache[(Redis)]
+        Uploads[File Uploads]
     end
     
     subgraph "Challenge Layer"
         WebChal[Web Challenges :8080]
-        FileProxy[File Proxy :8082]
-        Assets[Team Assets Volume]
     end
     
-    User -->|HTTP :8000| LB
-    LB --> CTFd
+    User -->|HTTP :8000| CTFd
     CTFd --> DB
     CTFd --> Cache
+    CTFd --> Uploads
     
     User -->|HTTP :8080| WebChal
-    User -->|HTTP :8082| FileProxy
     
-    FileProxy -->|Auth Check| CTFd
-    FileProxy -->|Read| Assets
-    Assets -->|Generate| SetupScript[setup_ctf.py]
+    Uploads -.->|Serve Files| User
 ```
 
-### Dynamic Flag Validation Logic
-```mermaid
-sequenceDiagram
-    participant User
-    participant CTFd
-    participant Plugin as DynamicXORKey Plugin
-    participant DB
-    
-    User->>CTFd: Submit Flag (HYVE_CTF{...})
-    CTFd->>Plugin: validate(submission, team_id)
-    Plugin->>DB: Fetch Base Content (e.g., "sql_inject")
-    Plugin->>Plugin: Calculate Hash(Base + TeamID + Secret)
-    Plugin->>Plugin: Construct Expected Flag
-    
-    alt Match
-        Plugin->>CTFd: Return True
-        CTFd->>User: "Correct!"
-    else Mismatch
-        Plugin->>CTFd: Return False
-        CTFd->>User: "Incorrect"
-    end
-```
-
-## 6. Performance & Security Considerations
+## 5. Performance & Security Considerations
 
 ### Server Load Handling
 *   **Container Resource Limits**: Each challenge container should have `cpus` and `memory` limits defined in `docker-compose.yml` to prevent a single exploited container from exhausting host resources.
 *   **Gunicorn Workers**: CTFd runs with 4 Gunicorn workers by default. For higher load (100+ concurrent users), increase `WORKERS` in `docker-compose.yml` to `2 * CPU_CORES + 1`.
 
 ### Rate Limiting
-1.  **Flag Submissions**: CTFd natively uses Redis to rate-limit flag submissions (default: 10 attempts per minute). This prevents brute-forcing of the dynamic hash.
-2.  **File Downloads**: The `file-proxy` validates sessions for *every* request. Nginx can be configured with `limit_req` zone to prevent scraping attacks on the assets.
-3.  **Web Challenges**: The Flask app (`app.py`) uses a single-threaded development server by default. For production, deploy behind `gunicorn` or `nginx` to handle concurrent connections gracefully.
+1.  **Flag Submissions**: CTFd natively uses Redis to rate-limit flag submissions (default: 10 attempts per minute).
+2.  **Web Challenges**: The Flask app (`app.py`) uses a single-threaded development server by default. For production, deploy behind `gunicorn` or `nginx` to handle concurrent connections gracefully.

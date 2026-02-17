@@ -8,6 +8,7 @@ import yaml
 import sys
 import getpass
 from bs4 import BeautifulSoup
+from pathlib import Path
 
 CTFD_URL = "http://localhost:8001"
 
@@ -77,16 +78,32 @@ def import_challenges(challenges_file, session_or_token, use_token=False):
             chal_data['minimum'] = challenge.get('minimum', challenge['value'] // 2)  # Default: half of initial
             chal_data['decay'] = challenge.get('decay', 25)  # Default decay rate
         
+        # Try to create challenge
         response = session.post(
             f"{CTFD_URL}/api/v1/challenges",
             json=chal_data,
             headers=headers  
         )
         
+        challenge_id = None
         if response.status_code == 200:
             challenge_id = response.json()['data']['id']
             print(f"  ✓ Created challenge (ID: {challenge_id})")
-            
+        else:
+            # Check if it already exists
+            print(f"  ⚠ Create failed ({response.status_code}), checking if exists...")
+            # Fetch all challenges to find ID by name (inefficient but works)
+            # Or simplified: just list challenges and filter
+            r = session.get(f"{CTFD_URL}/api/v1/challenges", headers=headers)
+            if r.status_code == 200:
+                chals = r.json()['data']
+                for c in chals:
+                    if c['name'] == challenge['name']:
+                        challenge_id = c['id']
+                        print(f"  ✓ Found existing challenge (ID: {challenge_id})")
+                        break
+        
+        if challenge_id:
             # Add flags
             for flag_item in challenge.get('flags', []):
                 # Handle both string flags and dict with type
@@ -102,12 +119,13 @@ def import_challenges(challenges_file, session_or_token, use_token=False):
                     "content": flag_content,
                     "type": flag_type
                 }
+                # Check duplication? CTFd allows multiple flags.
+                # Just try to add.
                 session.post(
                     f"{CTFD_URL}/api/v1/flags",
                     json=flag_data,
                     headers=headers
                 )
-            print(f"  ✓ Added {len(challenge.get('flags', []))} flag(s)")
             
             # Add hints if any
             for hint in challenge.get('hints', []):
@@ -122,9 +140,39 @@ def import_challenges(challenges_file, session_or_token, use_token=False):
                     headers=headers
                 )
             if challenge.get('hints'):
-                print(f"  ✓ Added {len(challenge['hints'])} hint(s)")
+                print(f"  ✓ Processed {len(challenge['hints'])} hint(s)")
+            
+            # Upload files if any
+            for file_entry in challenge.get('files', []):
+                file_path = file_entry['location']
+                # Remove leading slash if present to make it relative
+                if file_path.startswith('/'):
+                     file_path = file_path[1:]
+                
+                path_obj = Path(file_path)
+                if path_obj.exists():
+                     print(f"  > Uploading file: {file_path}")
+                     with open(file_path, 'rb') as f:
+                         files = {'file': (path_obj.name, f)}
+                         data = {'challenge_id': challenge_id, 'type': 'challenge'}
+                         
+                         # CTFd API v1
+                         # POST /api/v1/files
+                         resp = session.post(
+                             f"{CTFD_URL}/api/v1/files",
+                             files=files,
+                             data=data,
+                             headers={'Authorization': headers.get('Authorization')} if 'Authorization' in headers else None
+                         )
+                         if resp.status_code == 200:
+                             print(f"    ✓ Uploaded {path_obj.name}")
+                         else:
+                             print(f"    ✗ Failed to upload {path_obj.name}: {resp.text}")
+                else:
+                    print(f"  ⚠ File not found locally: {file_path}")
+
         else:
-            print(f"  ✗ Failed: {response.text}")
+            print(f"  ✗ Failed to create or find challenge: {response.text}")
 
 
 if __name__ == "__main__":

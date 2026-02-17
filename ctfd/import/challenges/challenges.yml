@@ -11,18 +11,16 @@ challenges:
       Flag format: HYVE_CTF{CITY_COUNTRY_LANDMARK}
       Example: HYVE_CTF{LONDON_UK_BIGBEN}
 
-      Download the image from: http://localhost:8082/files/osint/mystery_location.jpg
-      
-      **Note:** You must be logged in and assigned to a team to download files.
+      Download the image from the Files tab.
     value: 100
-    type: decay
+    type: dynamic
     state: visible
     max_attempts: 0
     flags:
       - flag: "HYVE_CTF{PARIS_FRANCE_EIFFELTOWER}"
         type: static
     files:
-      - location: /challenges/osint/mystery_location.jpg
+      - location: challenges/osint/mystery_location.jpg
     hints:
       - content: "EXIF data might reveal the coordinates."
         cost: 10
@@ -35,23 +33,20 @@ challenges:
       
       Hint: The password is in the provided wordlist (which is now shorter for your convenience).
       
-      Download the image from: http://localhost:8082/files/stego/cat.jpeg
-      Download the wordlist from: http://localhost:8082/files/stego/wordlist.txt
-      
-      **Note:** Files are team-specific. You must be logged in to download.
+      Download the files from the Files tab.
     value: 100
-    type: decay
+    type: dynamic
     state: visible
     max_attempts: 0
     flags:
       - flag: "HYVE_CTF{st3g0_cat_m4st3r}"
         type: static
     files:
-      - location: /challenges/stego/cat.jpeg
-      - location: /challenges/stego/wordlist.txt
+      - location: challenges/stego/cat.jpeg
+      - location: challenges/stego/wordlist.txt
     hints:
-      - content: "The password is recently released in the CTF."
-        cost: 20
+      - content: "Use steghide to extract the data."
+        cost: 10
 
   - name: "Bistro Menu Cipher"
     category: Cryptography
@@ -116,7 +111,7 @@ challenges:
     state: visible
     max_attempts: 0
     flags:
-      - flag: "HYVE_CTF{cl34rt3xt_cr3ds_f0und_0800fc577294c34e0b28ad2839435945}"
+      - flag: "HYVE_CTF{cl34rt3xt_cr3ds_f0und}"
         type: static
     files:
       - location: /challenges/network/cleartext_traffic.pcap

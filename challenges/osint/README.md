@@ -18,10 +18,11 @@ The `generate_team_files.py` script now handles this automatically:
 ### Solution
 
 Participants should:
-1.  **Extract EXIF data** using `exiftool mystery_location.jpg` to find the GPS coordinates.
-2.  **Construct the password** from the coordinates (e.g., `48.862.29`).
-3.  **Extract the hidden flag** using `steghide`:
-    ```bash
-    steghide extract -sf mystery_location.jpg -p "48.862.29"
-    ```
-4.  The extracted file (`flag.txt` or printed content) will contain the flag: `HYVE_CTF{PARIS_FRANCE_EIFFELTOWER_...}`.
+1.  **Download the image** from the CTFd challenge "Files" tab.
+2.  **Analyze EXIF data** using tools like `exiftool` or online viewers.
+3.  **Find the flag** in the image description/comment field: `HYVE_CTF{PARIS_FRANCE_EIFFELTOWER}`.
+
+```bash
+exiftool mystery_location.jpg
+# Look for "Description" or "Image Description" field
+```

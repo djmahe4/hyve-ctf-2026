@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Starting Hivye CTF 2026..."
+echo "Starting Hyve CTF 2026..."
 echo ""
 
 # Start CTFd

@@ -53,12 +53,18 @@ def import_challenges(challenges_file, session_or_token, use_token=False):
         headers = {"Content-Type": "application/json"}
     
     # Load challenges
+    print(f"\n[*] Loading challenges from: {challenges_file}")
     with open(challenges_file, 'r') as f:
         data = yaml.safe_load(f)
     
-    print(f"\n[*] Loaded {len(data.get('challenges', []))} challenges")
+    loaded_challenges = data.get('challenges', [])
+    print(f"[*] Loaded {len(loaded_challenges)} challenges")
+    if len(loaded_challenges) < 13:
+        print("[!] Warning: Expected 13 challenges, but found fewer. Listing loaded names:")
+        for i, c in enumerate(loaded_challenges):
+            print(f"    {i+1}. {c.get('name')}")
     
-    for challenge in data.get('challenges', []):
+    for challenge in loaded_challenges:
         print(f"\n[*] Importing: {challenge['name']}")
         
         # Create challenge

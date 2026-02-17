@@ -83,7 +83,7 @@ LANDMARKS = [
         "name": "Stockholm",
         "keywords": ["STOCKHOLM", "SWEDEN", "STOCKHOLM"],
         "lat": 59.3293, "lon": 18.0686, "lat_ref": "N", "lon_ref": "E",
-        "file": "challenges\osint\source_images\Driving_Stockholm_Sweden.png"
+        "file": "challenges/osint/source_images/Driving_Stockholm_Sweden.png"
     }
 ]
 

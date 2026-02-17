@@ -3,7 +3,7 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Copy the proxy service
-COPY file_proxy.py .
+COPY deployment/docker/file_proxy.py .
 
 # Install dependencies
 RUN pip install --no-cache-dir flask requests

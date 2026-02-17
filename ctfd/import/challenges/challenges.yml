@@ -69,7 +69,7 @@ challenges:
     category: Web
     description: |
       The Hyve Bistro staff portal has a vulnerability. Gain access to the internal dashboard.
-      Target: http://challenges:8080/staff-login
+      Target: http://localhost:8080/staff-login
 
       Retrieve the internal bypass token.
     value: 200
@@ -87,7 +87,7 @@ challenges:
     category: Web
     description: |
       Only 'Gold Members' can see special reward codes on their profile.
-      Target: http://challenges:8080/profile
+      Target: http://localhost:8080/profile
     value: 200
     type: decay
     state: visible
@@ -103,9 +103,8 @@ challenges:
     category: Network
     description: |
       Analyze the bistro's internal traffic to find cleartext customer credentials.
-      Download: http://192.168.1.50:8082/files/network/cleartext_traffic.pcap
       
-      **Note:** PCAP file contains team-specific flags. You must be logged in to download.
+      **Note:** Download the PCAP file from the Files tab. You must be logged in to download.
     value: 200
     type: decay
     state: visible
@@ -133,7 +132,7 @@ challenges:
     category: Web
     description: |
       The ingredients search bar is reflecting input. 
-      Target: http://challenges:8080/menu-search?q=YOUR_INPUT
+      Target: http://localhost:8080/menu-search?q=YOUR_INPUT
 
       Execute script to reveal the secret search token.
     value: 300
@@ -148,7 +147,7 @@ challenges:
     category: Web
     description: |
       Access other customers' orders via the tracking API.
-      Target: http://challenges:8080/api/order/tracking/1
+      Target: http://localhost:8080/api/order/tracking/1
 
       View the note for order #1.
     value: 300
@@ -163,7 +162,7 @@ challenges:
     category: Web
     description: |
       The most secret ingredient source is hidden in plain sight.
-      Target: http://challenges:8080/secret-ingredients
+      Target: http://localhost:8080/secret-ingredients
     value: 100
     type: decay
     state: visible

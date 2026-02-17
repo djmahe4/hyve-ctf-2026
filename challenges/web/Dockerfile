@@ -9,11 +9,11 @@ RUN pip install --no-cache-dir flask
 WORKDIR /app
 
 # Waiting entrypoint script
-COPY challenges/web/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+COPY challenges/web/entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 
 # Expose port
 EXPOSE 8080
 
 # Run entrypoint script
-CMD ["/entrypoint.sh"]
+CMD ["/app/entrypoint.sh"]

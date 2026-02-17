@@ -191,37 +191,38 @@ def get_api_token(session):
     """Generate API token"""
     print("\n[*] Generating API token...")
     
-    # Strategy 1: Get CSRF token from settings page
+    # Strategy 1: Get CSRF token from settings or login page
     csrf_token = None
     try:
-        settings_page = session.get(f"{CTFD_URL}/settings")
-        # print(f"    Settings page status: {settings_page.status_code}")
-        
-        from bs4 import BeautifulSoup
-        soup = BeautifulSoup(settings_page.text, 'html.parser')
-        
-        r = session.get(f"{CTFD_URL}/login")
-        soup = BeautifulSoup(r.text, "html.parser")
-        csrf = soup.find("input", {"name": "nonce"})["value"]
-
+        # Try settings first (if logged in)
+        resp = session.get(f"{CTFD_URL}/settings")
+        if resp.status_code != 200:
+            # Fallback to login
+            resp = session.get(f"{CTFD_URL}/login")
             
-        # 2. Try hidden input (older themes)
+        from bs4 import BeautifulSoup
+        soup = BeautifulSoup(resp.text, 'html.parser')
+        
+        # 1. Try meta tag (Modern CTFd)
+        meta = soup.find('meta', {'name': 'csrf-token'})
+        if meta:
+            csrf_token = meta.get('content')
+            
+        # 2. Try script variable
+        if not csrf_token:
+            import re
+            match = re.search(r'csrf_nonce\s*=\s*"([^"]+)"', resp.text)
+            if match:
+                csrf_token = match.group(1)
+
+        # 3. Try hidden input (Traditional)
         if not csrf_token:
             inp = soup.find('input', {'name': 'nonce'})
             if inp:
-                csrf_token = inp['value']
-                # print(f"    Found CSRF token in input")
-                
-        # 3. Try parsing from script tag (var csrf_token = "...")
-        if not csrf_token:
-            import re
-            match = re.search(r'csrf_nonce\s*=\s*"([^"]+)"', settings_page.text)
-            if match:
-                csrf_token = match.group(1)
-                # print(f"    Found CSRF token in script variable")
+                csrf_token = inp.get('value')
 
     except Exception as e:
-        print(f"    Error extracting CSRF: {e}")
+        print(f"    Warning: CSRF extraction failed: {e}")
 
     if not csrf_token:
         print("    [!] Could not find CSRF token. API creation might fail.")

@@ -3,8 +3,8 @@ import sys
 import json
 from bs4 import BeautifulSoup
 
-CTFD_URL = "http://localhost:8001"
-PROXY_URL = "http://localhost:8082"
+CTFD_URL = "http://0.0.0.0:8001"
+PROXY_URL = "http://0.0.0.0:8082"
 
 def login(session, username, password):
     print(f"[*] Logging in as {username}...")
@@ -70,8 +70,8 @@ import argparse
 
 def main():
     parser = argparse.ArgumentParser(description='Verify CTFd Challenges')
-    parser.add_argument('--url', default="http://localhost:8001", help='CTFd URL')
-    parser.add_argument('--proxy-url', default="http://localhost:8082", help='File Proxy URL')
+    parser.add_argument('--url', default="http://0.0.0.0:8001", help='CTFd URL')
+    parser.add_argument('--proxy-url', default="http://0.0.0.0:8082", help='File Proxy URL')
     parser.add_argument('--username', default="user_team1", help='Team User')
     parser.add_argument('--password', default="team1pass", help='Team Password')
     

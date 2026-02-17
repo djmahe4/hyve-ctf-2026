@@ -10,7 +10,7 @@ import getpass
 from bs4 import BeautifulSoup
 from pathlib import Path
 
-CTFD_URL = "http://localhost:8001"
+CTFD_URL = "http://0.0.0.0:8001"
 
 
 def login_with_credentials(username, password):

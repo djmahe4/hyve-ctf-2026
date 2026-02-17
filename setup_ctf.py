@@ -15,7 +15,7 @@ from pathlib import Path
 import subprocess
 import os
 
-CTFD_URL = "http://localhost:8001"
+CTFD_URL = "http://0.0.0.0:8001"
 
 def check_dependencies():
     """Check for required dependencies"""

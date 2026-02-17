@@ -597,6 +597,18 @@ Examples:
     # Must be done BEFORE import so files exist for upload
     generate_files()
     
+    # Step 5.5: Fix permissions for uploads
+    # Ensure ctfd user owns the upload directory to prevent 500 errors
+    print("\n[*] Fixing permissions for uploads...")
+    try:
+        subprocess.run(
+            ['docker', 'exec', '-u', '0', 'ctfd-ctfd-1', 'chown', '-R', 'ctfd:ctfd', '/var/uploads'],
+            check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+        )
+        print("  [+] Permissions fixed")
+    except Exception as e:
+        print(f"  [-] Failed to fix permissions: {e}")
+
     # Step 6: Import challenges (and upload files)
     import_challenges(token)
     

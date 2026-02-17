@@ -92,9 +92,10 @@ if [ "$REMOVE_DATA" = true ]; then
     
     echo "[*] Removing CTFd persistent data..."
     if [ -d "ctfd/data" ]; then
-        # Use sudo to remove to avoid permission issues if Docker created them
+        echo "    > Deep cleaning ctfd/data..."
+        sudo rm -rf ctfd/data/*
         sudo rm -rf ctfd/data
-        echo "    ✓ CTFd data removed (database, uploads, logs)"
+        echo "    ✓ All persistent data removed (logs, uploads, database)"
     else
         echo "    ℹ No CTFd data to remove"
     fi

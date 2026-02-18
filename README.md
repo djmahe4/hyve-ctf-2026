@@ -1,19 +1,18 @@
 # Hyve CTF 2026
 
-A 2-hour Capture The Flag (CTF) competition featuring 10 challenges across multiple security domains.
+A 3-hour Capture The Flag (CTF) competition featuring 21 challenges across multiple security domains.
 
 ## Description
 
-Hyve CTF 2026 is a beginner to intermediate level CTF competition designed to test skills in OSINT, steganography, cryptography, web exploitation, and network analysis. The competition runs for 2 hours and includes 10 challenges with a total of 1800 points available.
+Hyve CTF 2026 is a beginner to intermediate level CTF competition designed to test skills in OSINT, steganography, cryptography, web exploitation, and network analysis. The competition runs for 3 hours and includes 21 challenges with a total of 1950+ points available.
 
 ## Challenge Categories
 
-- **OSINT** (1 challenge) - Open Source Intelligence gathering
+- **OSINT** (3 challenges) - Open Source Intelligence gathering
 - **Steganography** (1 challenge) - Hidden message discovery
-- **Cryptography** (1 challenge) - Classical and modern encryption
-- **Web** (4 challenges) - Web application vulnerabilities
+- **Cryptography** (2 challenges) - Classical and modern encryption
+- **Web** (5 challenges) - Web application vulnerabilities
 - **Network** (1 challenge) - Packet analysis and forensics
-- **Forensics** (2 challenges) - Digital forensics and analysis
 
 ## Quick Start
 
@@ -24,15 +23,18 @@ Hyve CTF 2026 is a beginner to intermediate level CTF competition designed to te
    ```
 
 2. **Automated Setup**:
+(a) For local deployment (10 challenges)
    ```bash
-   python setup_ctf.py
+   python setup_ctf.py --skip-users
    ```
+(b) For full deployment (21 challenges)
+   **[Refer to deployment.md](docs/DEPLOYMENT.md#alternative-deployment)**
 
 ## Documentation
 
 - **[Installation & Deployment](docs/DEPLOYMENT.md)** - Complete setup guide from installation to production.
 - **[System Logic & Integrations](docs/LOGIC.md)** - API flows, dynamic flags, and architecture details.
-- **[Challenge Writeups](docs/WRITEUPS.md)** - Solutions for all 10 challenges.
+- **[Challenge Writeups](docs/WRITEUPS.md)** - Solutions for all 21 challenges.
 
 ## Project Structure
 

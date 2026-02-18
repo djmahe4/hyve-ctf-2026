@@ -174,32 +174,43 @@ Complete solutions for all 10 challenges in Hyve CTF 2026.
 
 ### Solution
 
-1. The encoded string: `V1cxR2VscFVXVEJZTWxKc1dUSTVhMXBYVW1aak0xWnFXVEpXZW1ONU5UQmxTRkU5`
+1. The encoded string: `RlN5SkVJOVFJUk03TDJ1eU1hQXNwMkl3cHpJMEszVmpxUzl2QXdFc29KeTRzRD09`
 
-2. Decode using Base64 three times:
+2. Decode using Base64, then ROT13, then Base64 again:
 
    ```python
    import base64
+
+   def rot13(text):
+       result = ""
+       for char in text:
+           if 'a' <= char <= 'z':
+               result += chr((ord(char) - ord('a') + 13) % 26 + ord('a'))
+           elif 'A' <= char <= 'Z':
+               result += chr((ord(char) - ord('A') + 13) % 26 + ord('A'))
+           else:
+               result += char
+       return result
+
+   encoded = "RlN5SkVJOVFJUk03TDJ1eU1hQXNwMkl3cHpJMEszVmpxUzl2QXdFc29KeTRzRD09"
    
-   encoded = "V1cxR2VscFVXVEJZTWxKc1dUSTVhMXBYVW1aak0xWnFXVEpXZW1ONU5UQmxTRkU5"
+   # First decode (Base64)
+   decoded1 = base64.b64decode(encoded).decode()
    
-   # First decode
-   decoded1 = base64.b64decode(encoded)
+   # Second decode (ROT13)
+   decoded2 = rot13(decoded1)
    
-   # Second decode
-   decoded2 = base64.b64decode(decoded1)
-   
-   # Third decode
-   decoded3 = base64.b64decode(decoded2)
-   print(decoded3.decode())
+   # Third decode (Base64)
+   decoded3 = base64.b64decode(decoded2).decode()
+   print(decoded3)
    ```
 
 3. Or use command line:
    ```bash
-   echo "V1cxR2VscFVXVEJZTWxKc1dUSTVhMXBYVW1aak0xWnFXVEpXZW1ONU5UQmxTRkU5" | base64 -d | base64 -d | base64 -d
+   echo "RlN5SkVJOVFJUk03TDJ1eU1hQXNwMkl3cHpJMEszVmpxUzl2QXdFc29KeTRzRD09" | base64 -d | tr 'A-Za-z' 'N-ZA-Mn-za-m' | base64 -d
    ```
 
-**Flag**: `HYVE_CTF{base64_decoded_success}`
+**Flag**: `HYVE_CTF{chefs_secret_r0t_b64_mix}`
 
 ---
 
@@ -327,5 +338,5 @@ All flags in this CTF follow a standard format.
 | **OSINT** | Bistro Location | `HYVE_CTF{PARIS_FRANCE_EIFFELTOWER}` | **Description Field.** The flag is in the EXIF image description. |
 | **Steganography** | Secret Ingredient | `HYVE_CTF{st3g0_cat_m4st3r}` | **Steghide.** Extract with password `meow`. |
 | **Network** | Traffic Audit | `HYVE_CTF{cl34rt3xt_cr3ds_f0und}` | **Traffic Analysis.** Find the FTP `PASS` command. |
-| **Cryptography** | Chef's Recipe | `HYVE_CTF{base64_decoded_success}` | **Decoding.** Triple Base64 decode. |
+| **Cryptography** | Chef's Recipe | `HYVE_CTF{chefs_secret_r0t_b64_mix}` | **Decoding.** Base64 -> ROT13 -> Base64. |
 | **Web** | All Web Challenges | *Various* | **Exploitation.** Server returns flag upon successful exploit. |

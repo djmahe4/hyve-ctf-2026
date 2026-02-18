@@ -53,10 +53,18 @@ If you want to reset challenges or configuration without recreating all 20+ team
 ```
 
 **What gets created:**
-- ✅ **Admin Account**: `admin` / `admin123`
-- ✅ **Event**: 2-hour duration, starts in 5 minutes
-- ✅ **Teams**: 20 participant teams + 1 admin test team
+- ✅ **Admin Account**: `Sin444` / `09877890` 
+- ✅ **Event**: 3-hour duration, starts in 10 minutes
+- ✅ **Teams**: 20 participant teams + 1 admin test team ( Removed in latest edition)
 - ✅ **Files**: Static assets uploaded to CTFd
+
+#### Alternative deployment
+
+Go to releases tab and download the latest zip file.
+- Step 1: Run `docker pull ctfd`
+- Step 2: Open the url in browser
+- Step 3: Navigate to `Admin Panel -> Config -> Backup -> Import page`
+- Step 4: Upload the zip file there.
 
 ---
 

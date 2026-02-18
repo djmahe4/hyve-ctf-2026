@@ -1,0 +1,342 @@
+# Challenge Writeups
+
+Complete solutions for all 10 challenges in Hyve CTF 2026.
+
+---
+
+## Challenge 1: Bistro Location (OSINT - 100 points)
+
+**Category**: OSINT  
+**Difficulty**: Easy  
+**Points**: 100
+
+### Solution
+
+1. Download the mystery image from the challenge files.
+2. Extract EXIF data using exiftool:
+   ```bash
+   exiftool mystery_location.jpg
+   ```
+
+3. Look for GPS coordinates in the output:
+   ```
+   GPS Latitude: 48° 51' 30.24" N
+   GPS Longitude: 2° 17' 40.20" E
+   ```
+
+4. Identify the landmark: Eiffel Tower in Paris, France.
+
+5. **THE FLAG**: Check the "Description" or "Image Description" field in the EXIF data.
+   It contains the flag directly: `HYVE_CTF{PARIS_FRANCE_EIFFELTOWER}`
+
+---
+
+## Challenge 2: Secret Ingredient List (Steganography - 100 points)
+
+**Category**: Steganography  
+**Difficulty**: Easy  
+**Points**: 100
+
+### Solution
+
+1. Download the `cat.jpeg` image and `wordlist.txt` from the challenge files.
+
+2. The image contains a hidden message embedded with `steghide`.
+
+3. Use the provided wordlist to crack the password (or guess common cat terms like `meow`).
+   ```bash
+   # Try passwords from wordlist.txt
+   steghide extract -sf cat.jpeg -p 2026ftc
+   ```
+
+4. The tool extracts `secret.txt` containing the flag.
+
+**Flag**: `HYVE_CTF{st3g0_cat_m4st3r}`
+
+---
+
+## Challenge 3: Bistro Menu Cipher (Cryptography - 100 points)
+
+**Category**: Cryptography  
+**Difficulty**: Easy  
+**Points**: 100
+
+### Solution
+
+1. The encrypted message is: `SYNT{pnrfne_vf_gbb_jrnx}`
+
+2. This is a ROT13 cipher (Caesar cipher with shift of 13)
+
+3. Decode using any ROT13 decoder or Python:
+   ```python
+   import codecs
+   encrypted = "SYNT{pnrfne_vf_gbb_jrnx}"
+   decrypted = codecs.decode(encrypted, 'rot_13')
+   print(decrypted)
+   ```
+
+**Flag**: `HYVE_CTF{caesar_is_too_weak}`
+
+---
+
+## Challenge 4: Staff Portal Bypass (Web - 200 points)
+
+**Category**: Web  
+**Difficulty**: Medium  
+**Points**: 200
+
+### Solution
+
+1. Navigate to http://localhost:8080/staff-login
+
+2. The login form is vulnerable to SQL injection
+
+3. The SQL query structure: `SELECT * FROM users WHERE username='USER' AND password='PASS'`
+
+4. Bypass authentication by injecting SQL comment:
+   - **Username**: `admin'--`
+   - **Password**: anything (will be ignored)
+
+5. The query becomes: `SELECT * FROM users WHERE username='admin'--' AND password='...'`
+   - Everything after `--` is commented out
+
+6. Successfully logged in, flag is displayed
+
+**Flag**: `HYVE_CTF{sql_1nj3ct10n_b4s1c}`
+
+---
+
+## Challenge 5: Gold Membership (Web - 200 points)
+
+**Category**: Web  
+**Difficulty**: Medium  
+**Points**: 200
+
+### Solution
+
+1. Navigate to http://localhost:8080/profile
+
+2. The page shows "Role: user" and mentions admin privileges needed
+
+3. Open browser Developer Tools (F12)
+
+4. Go to Application/Storage tab > Cookies
+
+5. Find cookie named `role` with value `user`
+
+6. Edit the cookie value to `admin`
+
+7. Refresh the page
+
+8. Flag is now visible
+
+**Flag**: `HYVE_CTF{c00k13_m4n1pul4t10n}`
+
+---
+
+## Challenge 6: Bistro Traffic Audit (Network - 200 points)
+
+**Category**: Network  
+**Difficulty**: Medium  
+**Points**: 200
+
+### Solution
+
+1. Download `cleartext_traffic.pcap` from the challenge files.
+
+2. Open in Wireshark:
+   ```bash
+   wireshark cleartext_traffic.pcap
+   ```
+
+3. Apply filter for FTP traffic:
+   ```
+   ftp
+   ```
+
+4. Look through the packets for FTP authentication
+
+5. Find the PASS command containing the flag:
+   ```
+   PASS HYVE_CTF{cl34rt3xt_cr3ds_f0und}
+   ```
+
+6. Alternatively, follow TCP stream of FTP packets
+
+**Flag**: `HYVE_CTF{cl34rt3xt_cr3ds_f0und}`
+
+---
+
+## Challenge 7: Chef's Secret Recipe (Cryptography - 200 points)
+**Category**: Cryptography  
+**Difficulty**: Medium  
+**Points**: 200
+
+### Solution
+
+1. The encoded string: `RlN5SkVJOVFJUk03TDJ1eU1hQXNwMkl3cHpJMEszVmpxUzl2QXdFc29KeTRzRD09`
+
+2. Decode using Base64, then ROT13, then Base64 again:
+
+   ```python
+   import base64
+
+   def rot13(text):
+       result = ""
+       for char in text:
+           if 'a' <= char <= 'z':
+               result += chr((ord(char) - ord('a') + 13) % 26 + ord('a'))
+           elif 'A' <= char <= 'Z':
+               result += chr((ord(char) - ord('A') + 13) % 26 + ord('A'))
+           else:
+               result += char
+       return result
+
+   encoded = "RlN5SkVJOVFJUk03TDJ1eU1hQXNwMkl3cHpJMEszVmpxUzl2QXdFc29KeTRzRD09"
+   
+   # First decode (Base64)
+   decoded1 = base64.b64decode(encoded).decode()
+   
+   # Second decode (ROT13)
+   decoded2 = rot13(decoded1)
+   
+   # Third decode (Base64)
+   decoded3 = base64.b64decode(decoded2).decode()
+   print(decoded3)
+   ```
+
+3. Or use command line:
+   ```bash
+   echo "RlN5SkVJOVFJUk03TDJ1eU1hQXNwMkl3cHpJMEszVmpxUzl2QXdFc29KeTRzRD09" | base64 -d | tr 'A-Za-z' 'N-ZA-Mn-za-m' | base64 -d
+   ```
+
+**Flag**: `HYVE_CTF{chefs_secret_r0t_b64_mix}`
+
+---
+
+## Challenge 8: Menu Search Vulnerability (Web - 300 points)
+
+**Category**: Web  
+**Difficulty**: Hard  
+**Points**: 300
+
+### Solution
+
+1. Navigate to http://localhost:8080/menu-search
+
+2. The search functionality reflects user input without sanitization
+
+3. Test for XSS vulnerability by injecting a script tag:
+   ```
+   <script>alert(1)</script>
+   ```
+
+4. Full URL:
+   ```
+   http://localhost:8080/menu-search?q=<script>alert(1)</script>
+   ```
+
+5. The application detects the XSS payload and returns the flag
+
+6. In a real scenario, this could steal cookies or execute malicious code
+
+**Flag**: `HYVE_CTF{xss_r3fl3ct3d_vuln}`
+
+---
+
+## Challenge 9: Order Tracking (Web - 300 points)
+
+**Category**: Web  
+**Difficulty**: Hard  
+**Points**: 300
+
+### Solution
+
+1. Navigate to http://localhost:8080/api/order/tracking/1001
+
+2. This returns your order data (order_id=1001)
+
+3. The API has an IDOR vulnerability - no authorization checks
+
+4. Try accessing the admin order by changing the ID to 10:
+   ```
+   http://localhost:8080/api/order/tracking/10
+   ```
+
+5. The API returns admin's data including the secret field with the flag:
+   ```json
+   {
+     "order_id": 10,
+     "customer": "admin",
+     "email": "admin@hyvebistro.ctf",
+     "secret_note": "HYVE_CTF{1d0r_pr1v_3sc4l4t10n}"
+   }
+   ```
+
+**Flag**: `HYVE_CTF{1d0r_pr1v_3sc4l4t10n}`
+
+---
+
+## Challenge 10: Secret Ingredient Vault (Web - 100 points)
+
+**Category**: Web  
+**Difficulty**: Easy  
+**Points**: 100
+
+### Solution
+
+1. Navigate to http://localhost:8080/secret-ingredients
+
+2. View the page source (Ctrl+U or right-click > View Page Source)
+
+3. Look through the HTML for hidden elements or comments
+
+4. Find a hidden div with a data attribute:
+   ```html
+   <div id="ingredient-vault" data-recipe-secret="HYVE_CTF{html_embedded_flag}" class="hidden"></div>
+   ```
+
+5. The flag is embedded in the `data-recipe-secret` attribute
+
+6. Alternatively, use browser DevTools (F12) > Elements tab to inspect the DOM
+
+**Flag**: `HYVE_CTF{html_embedded_flag}`
+
+---
+
+## Summary
+
+Congratulations on completing all 10 challenges! Here's what you learned:
+
+- **OSINT**: EXIF data extraction and geolocation
+- **Steganography**: Hidden data in images using steghide
+- **Cryptography**: ROT13 and Base64 encoding (triple encoding)
+- **Web Security**:
+  - SQL Injection vulnerabilities
+  - Cookie manipulation
+  - Cross-Site Scripting (XSS)
+  - Insecure Direct Object Reference (IDOR)
+  - Source code inspection and HTML data attributes
+- **Network Analysis**: PCAP analysis with Wireshark and FTP traffic inspection
+
+Keep practicing and stay secure! 🎉
+
+---
+
+## Understanding the Flags
+
+All flags in this CTF follow a standard format.
+
+**Format**: `HYVE_CTF{CONTENT}`
+
+*   **CONTENT**: A string unique to the challenge (e.g., `sql_1nj3ct10n_b4s1c`).
+
+### Challenges & Flags
+
+| Category | Challenge | Flag | Extraction Method |
+| :--- | :--- | :--- | :--- |
+| **OSINT** | Bistro Location | `HYVE_CTF{PARIS_FRANCE_EIFFELTOWER}` | **Description Field.** The flag is in the EXIF image description. |
+| **Steganography** | Secret Ingredient | `HYVE_CTF{st3g0_cat_m4st3r}` | **Steghide.** Extract with password `meow`. |
+| **Network** | Traffic Audit | `HYVE_CTF{cl34rt3xt_cr3ds_f0und}` | **Traffic Analysis.** Find the FTP `PASS` command. |
+| **Cryptography** | Chef's Recipe | `HYVE_CTF{chefs_secret_r0t_b64_mix}` | **Decoding.** Base64 -> ROT13 -> Base64. |
+| **Web** | All Web Challenges | *Various* | **Exploitation.** Server returns flag upon successful exploit. |

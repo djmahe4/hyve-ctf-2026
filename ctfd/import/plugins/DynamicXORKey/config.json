@@ -1,0 +1,8 @@
+{
+    "name": "DynamicXORKey",
+    "route": "/plugins/DynamicXORKey",
+    "version": "1.0.0",
+    "description": "Custom dynamic flags with XOR hashing and linear time-based decay of 2 points per 4 minutes.",
+    "author": "Antigravity",
+    "type": "standard_plugin"
+}

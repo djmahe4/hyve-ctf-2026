@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  challenge-web:
+    build:
+      context: ../../
+      dockerfile: challenges/web/Dockerfile
+    container_name: ctf-web-challenges
+    ports:
+      - "8080:8080"
+    environment:
+      - FLAG_SQL_INJECTION=FLAG{sql_1nj3ct10n_b4s1c}
+      - FLAG_COOKIE_MANIP=FLAG{c00k13_m4n1pul4t10n}
+      - FLAG_XSS=FLAG{xss_r3fl3ct3d_vuln}
+      - FLAG_IDOR=FLAG{1d0r_pr1v_3sc4l4t10n}
+    restart: unless-stopped
+    networks:
+      - challenge_network
+
+networks:
+  challenge_network:
+    driver: bridge
+  ctfd_network:
+    external: true
+    name: ctfd_network

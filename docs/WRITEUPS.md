@@ -46,7 +46,7 @@ Complete solutions for all 10 challenges in Hyve CTF 2026.
 3. Use the provided wordlist to crack the password (or guess common cat terms like `meow`).
    ```bash
    # Try passwords from wordlist.txt
-   steghide extract -sf cat.jpeg -p meow
+   steghide extract -sf cat.jpeg -p 2026ftc
    ```
 
 4. The tool extracts `secret.txt` containing the flag.
@@ -247,15 +247,15 @@ Complete solutions for all 10 challenges in Hyve CTF 2026.
 
 3. The API has an IDOR vulnerability - no authorization checks
 
-4. Try accessing the admin order by changing the ID to 1:
+4. Try accessing the admin order by changing the ID to 10:
    ```
-   http://localhost:8080/api/order/tracking/1
+   http://localhost:8080/api/order/tracking/10
    ```
 
 5. The API returns admin's data including the secret field with the flag:
    ```json
    {
-     "order_id": 1,
+     "order_id": 10,
      "customer": "admin",
      "email": "admin@hyvebistro.ctf",
      "secret_note": "HYVE_CTF{1d0r_pr1v_3sc4l4t10n}"

@@ -404,9 +404,9 @@ Complete solutions for all 19 challenges in Hyve CTF 2026.
 
 1. You are given `dashboard.html`. Inspecting the source code reveals hints left by developers about a fragmented flag.
 2. The flag is split into three Base64 encoded parts hidden in the DOM:
-   - Part 1 is in the HTML comment: `Q1RGe2h0bWxf` -> Base64 decodes to `CTF{html_`
+   - Part 1 is in the HTML comment: `SFlWRV9DVEZ7aHRtbF8=` -> Base64 decodes to `HYVE_CTF{html_`
    - Part 2 is the `<meta name="debug-id" content="...">` value `YmxpbmRfc3BvdHM=` -> Base64 decodes to `blind_spots`
-   - Part 3 is in the `data-config` attribute: `e3JldmVhbF90cnV0aH0=` -> Base64 decodes to `{reveal_truth}`
+   - Part 3 is in the `data-config` attribute: `X3tyZXZlYWxfdHJ1dGh9` -> Base64 decodes to `_{reveal_truth}`
 3. Concatenate the decoded parts.
 
 **Flag**: `HYVE_CTF{html_blind_spots_{reveal_truth}}`
@@ -424,7 +424,7 @@ Complete solutions for all 19 challenges in Hyve CTF 2026.
 1. You are provided with `style_hunt.html`.
 2. The page contains a "Wall of Text", but the CSS defines a specific class `.found` that is white text on a white background, making it invisible.
 3. Extract all characters wrapped in `<span class="found">`.
-4. The characters spell out: `CTF{css_classes_can_hide_secrets}`.
+4. The characters spell out: `HYVE_CTF{css_classes_can_hide_secrets}`.
 
 **Flag**: `HYVE_CTF{css_classes_can_hide_secrets}`
 

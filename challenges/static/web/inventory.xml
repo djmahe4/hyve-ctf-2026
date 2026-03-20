@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<inventory xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" timestamp="2026-02-18T14:50:00Z" location="warehouse-alpha">
+    <!-- 
+        WARNING: System migration in progress. 
+        Some items have been flagged with status="critical" for immediate review. 
+        Concatenate their 'id' attributes to retrieve the recovery key.
+    -->
+    <sector name="A">
+        <aisle number="1">
+            <shelf level="1">
+                <item id="item-001" status="normal">Apples</item>
+                <item id="HYVE_C" status="critical">System Component A</item>
+                <item id="item-003" status="normal">Bananas</item>
+            </shelf>
+            <shelf level="2">
+                <item id="TF" status="critical">System Component B</item>
+                <item id="item-005" status="normal">Cherries</item>
+            </shelf>
+        </aisle>
+        <aisle number="2">
+            <shelf level="1">
+                <item id="{x" status="critical">System Component C</item>
+                <item id="item-007" status="void">Dates</item>
+            </shelf>
+        </aisle>
+    </sector>
+    <sector name="B">
+        <aisle number="1">
+            <shelf level="3">
+                <item id="ml_" status="critical">System Component D</item>
+                <item id="item-009" status="normal">Elderberries</item>
+            </shelf>
+        </aisle>
+        <aisle number="5">
+             <shelf level="1">
+                <item id="item-011" status="normal">Figs</item>
+                <item id="pa" status="critical">System Component E</item>
+            </shelf>
+        </aisle>
+    </sector>
+    <sector name="C">
+        <aisle number="3">
+            <shelf level="4">
+                <item id="rs" status="critical">System Component F</item>
+                <item id="item-014" status="normal">Grapes</item>
+            </shelf>
+        </aisle>
+    </sector>
+    <sector name="D">
+       <aisle number="9">
+            <shelf level="9">
+                <item id="in" status="critical">System Component G</item>
+                <item id="item-016" status="normal">Honeydew</item>
+            </shelf>
+             <shelf level="10">
+                <item id="g_" status="critical">System Component H</item>
+            </shelf>
+        </aisle>
+    </sector>
+     <sector name="E">
+       <aisle number="2">
+            <shelf level="1">
+                <item id="is" status="critical">System Component I</item>
+            </shelf>
+        </aisle>
+    </sector>
+    <sector name="F">
+       <aisle number="4">
+            <shelf level="2">
+                <item id="_t" status="critical">System Component J</item>
+            </shelf>
+        </aisle>
+          <aisle number="6">
+            <shelf level="1">
+                <item id="ed" status="critical">System Component K</item>
+            </shelf>
+        </aisle>
+    </sector>
+    <sector name="G">
+       <aisle number="1">
+            <shelf level="1">
+                <item id="io" status="critical">System Component L</item>
+            </shelf>
+        </aisle>
+    </sector>
+     <sector name="H">
+       <aisle number="8">
+            <shelf level="5">
+                <item id="us" status="critical">System Component M</item>
+            </shelf>
+        </aisle>
+    </sector>
+     <sector name="I">
+       <aisle number="7">
+            <shelf level="3">
+                <item id="_b" status="critical">System Component N</item>
+            </shelf>
+        </aisle>
+    </sector>
+     <sector name="J">
+       <aisle number="2">
+            <shelf level="2">
+                <item id="ut" status="critical">System Component O</item>
+            </shelf>
+        </aisle>
+    </sector>
+     <sector name="K">
+       <aisle number="3">
+            <shelf level="4">
+                <item id="_n" status="critical">System Component P</item>
+            </shelf>
+        </aisle>
+    </sector>
+     <sector name="L">
+       <aisle number="1">
+            <shelf level="1">
+                <item id="3c" status="critical">System Component Q</item>
+            </shelf>
+        </aisle>
+    </sector>
+     <sector name="M">
+       <aisle number="5">
+            <shelf level="1">
+                <item id="3s" status="critical">System Component R</item>
+            </shelf>
+        </aisle>
+    </sector>
+     <sector name="N">
+       <aisle number="4">
+            <shelf level="1">
+                <item id="s" status="critical">System Component S</item>
+            </shelf>
+        </aisle>
+    </sector>
+     <sector name="O">
+       <aisle number="9">
+            <shelf level="1">
+                <item id="ar" status="critical">System Component T</item>
+                <item id="y}" status="critical">System Component U</item>
+            </shelf>
+        </aisle>
+    </sector>
+</inventory>

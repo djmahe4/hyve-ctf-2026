@@ -1,2 +1,0 @@
-Encrypted: SYNT{pnrfne_vf_gbb_jrnx}
-Hint: ROT13

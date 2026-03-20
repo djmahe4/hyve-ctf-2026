@@ -24,12 +24,12 @@ Hyve CTF 2026 is a beginner to intermediate level CTF competition designed to te
    ```
 
 2. **Automated Setup**:
-(a) For local deployment (10 challenges)
+   To deploy the complete set of 19 challenges locally:
    ```bash
    python setup_ctf.py --skip-users
    ```
-(b) For full deployment (19 challenges)
-   **[Refer to deployment.md](docs/DEPLOYMENT.md#alternative-deployment)**
+
+   *(Note: Alternatively, you can use the CTFd UI to import the backup zip via Config -> Backup -> Import).*
 
 ## Documentation
 

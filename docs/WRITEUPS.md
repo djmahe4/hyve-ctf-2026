@@ -1,6 +1,6 @@
 # Challenge Writeups
 
-Complete solutions for all 10 challenges in Hyve CTF 2026.
+Complete solutions for all 19 challenges in Hyve CTF 2026.
 
 ---
 
@@ -63,14 +63,14 @@ Complete solutions for all 10 challenges in Hyve CTF 2026.
 
 ### Solution
 
-1. The encrypted message is: `SYNT{pnrfne_vf_gbb_jrnx}`
+1. The encrypted message is: `ULIR_PGS{pnrfne_vf_gbb_jrnx}`
 
 2. This is a ROT13 cipher (Caesar cipher with shift of 13)
 
 3. Decode using any ROT13 decoder or Python:
    ```python
    import codecs
-   encrypted = "SYNT{pnrfne_vf_gbb_jrnx}"
+   encrypted = "ULIR_PGS{pnrfne_vf_gbb_jrnx}"
    decrypted = codecs.decode(encrypted, 'rot_13')
    print(decrypted)
    ```
@@ -177,6 +177,8 @@ Complete solutions for all 10 challenges in Hyve CTF 2026.
 1. The encoded string: `RlN5SkVJOVFJUk03TDJ1eU1hQXNwMkl3cHpJMEszVmpxUzl2QXdFc29KeTRzRD09`
 
 2. Decode using Base64, then ROT13, then Base64 again:
+
+   *Note: The ROT13 layer here means shifting letters by 13 positions.*
 
    ```python
    import base64
@@ -347,7 +349,7 @@ Complete solutions for all 10 challenges in Hyve CTF 2026.
 
 ### Solution
 
-1. The challenge description contains the text: `MXE yi jxu bet h ev cisysxut?`
+1. The challenge description contains the text: `MXE yi jxu wet ev cyisxyuv?`
 2. This is a simple Caesar cipher (ROT).
 3. Shift the letters by +10 (or -16) to reveal the question: `WHO is the god of mischief?`
 4. The god of mischief in Norse mythology (and popular culture) is Loki.
@@ -502,12 +504,12 @@ All flags in this CTF follow a standard format.
 | **OSINT** | Bistro Location | `HYVE_CTF{PARIS_FRANCE_EIFFELTOWER}` | **Description Field.** The flag is in the EXIF image description. |
 | **OSINT** | Secret Highway | `HYVE_CTF{STOCKHOLM_SWEDEN}` | **Reverse Image Search.** Identify landmark. |
 | **OSINT** | Mystery Place | `HYVE_CTF{CHiNa}` | **Reverse Image Search.** Identify landmark. |
-| **Steganography** | Secret Ingredient | `HYVE_CTF{st3g0_cat_m4st3r}` | **Steghide.** Extract with password `meow`. |
-| **Cryptography** | Bistro Menu Cipher | `HYVE_CTF{caesar_is_too_weak}` | **Decoding.** ROT13. |
+| **Steganography** | Secret Ingredient | `HYVE_CTF{st3g0_cat_m4st3r}` | **Steghide.** Extract with password `2026ftc`. |
+| **Cryptography** | Bistro Menu Cipher | `HYVE_CTF{caesar_is_too_weak}` | **Decoding.** ROT13 on `ULIR_PGS{...}`. |
 | **Cryptography** | Chef's Recipe | `HYVE_CTF{chefs_secret_r0t_b64_mix}` | **Decoding.** Base64 -> ROT13 -> Base64. |
 | **Cryptography** | Layer 0 | `HYVE_CTF{layer_cake_complete}` | **Decoding.** Reverse Base64 -> Gzip decompress. |
 | **Network** | Traffic Audit | `HYVE_CTF{cl34rt3xt_cr3ds_f0und}` | **Traffic Analysis.** Find the FTP `PASS` command. |
-| **Misc** | Lord of What? | `HYVE_CTF{LOKI}` | **Decoding.** ROT10 on the description text. |
+| **Misc** | Lord of What? | `HYVE_CTF{LOKI}` | **Decoding.** ROT10 on the description ciphertext. |
 | **Misc** | Binary Trouble | `HYVE_CTF{binary_execution_flow_mastered}` | **Binary Execution.** Set `CTF_ACCESS_LEVEL` env var. |
 | **Misc** | Multi-Stage Signal | `HYVE_CTF{s1gn4l_trac3d_th3_n3tw0rk_p4th}` | **Signal Reassembly.** Recombine cross-site fragments. |
 | **Web** | All Web Challenges | *Various* | **Exploitation/Parsing.** IDOR, cookies, HTML/XML DOM extraction. |

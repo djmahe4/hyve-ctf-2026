@@ -25,8 +25,9 @@ To ensure consistency and simplify infrastructure, challenge files are generated
 This script produces a single set of files in the `challenges/` directory:
 1.  **OSINT**: Downloads a random landmark image (e.g., Eiffel Tower) and embeds GPS coordinates.
 2.  **Steganography**: Creates a `cat.jpeg` with a hidden flag embedded via `steghide` and generates a corresponding wordlist.
-3.  **Network**: Generates a PCAP file containing simulated traffic and a cleartext flag.
+3.  **Network**: Generates a PCAP file containing simulated traffic and "cleartext_credentials" payload.
 4.  **Crypto**: Creates a multi-layer Base64 encoded text file.
+5.  **Web & Misc**: Pulls predefined local static attachments (e.g., HTML fragments, executables, partial zips) sourced natively for direct uploading.
 
 These files are then uploaded to CTFd, meaning all teams download the exact same file from the CTFd interface.
 

@@ -80,7 +80,7 @@ challenges:
     category: Cryptography
     description: |
       We found a ciphered note on the back of a menu:
-      SYNT{pnrfne_vf_gbb_jrnx}
+      ULIR_PGS{pnrfne_vf_gbb_jrnx}
       
       It appears to be using a classical shift cipher. Can you decrypt it?
       
@@ -208,16 +208,106 @@ challenges:
       - flag: "HYVE_CTF{html_embedded_flag}"
         type: static
 
-  - name: "Lord of Mischief"
+  - name: "Lord of What?"
     category: Misc
     description: |
-      Who is the lord of mischief?
-    value: 50
+      MXE yi jxu wet ev cyisxyuv?
+    value: 100
     type: standard
-    state: hidden
+    state: visible
     max_attempts: 0
     flags:
       - flag: "HYVE_CTF{LOKI}"
         type: static
+
+  - name: "Layer 0"
+    category: Cryptography
+    description: |
+      A cryptic string hides its truth beneath layered transformations, waiting for the curious to peel it back. Each step reveals a new mask, like unlocking a puzzle box that guards a secret at its core.
+
+      The code "==AAAAAIBqXgjCABz+QcJh8r2lELySziLpANIts8ww4qP0ASIraNPJHD0sw/CAAAAAAAIs4H"
+    value: 200
+    type: standard
+    state: visible
+    max_attempts: 0
+    flags:
+      - flag: "HYVE_CTF{layer_cake_complete}"
+        type: static
+
+  - name: "Web explorer 1"
+    category: Web
+    description: |
+      **XML Deep Nest** 
+      A puzzle buried in layers of structured data, where only the most “critical” elements whisper the secret if you know how to listen.
+    value: 100
+    type: standard
+    state: visible
+    max_attempts: 0
+    flags:
+      - flag: "HYVE_CTF{xml_parsing_is_tedious_but_n3c3ssary}"
+        type: static
+    files:
+      - location: challenges/static/web/inventory.xml
+
+  - name: "Web explorer 2"
+    category: Web
+    description: |
+      HTML Shadow DOM  
+      A web page that looks ordinary, but its shadows conceal fragments of truth scattered across invisible corners.
+    value: 200
+    type: standard
+    state: visible
+    max_attempts: 0
+    flags:
+      - flag: "HYVE_CTF{html_blind_spots_{reveal_truth}}"
+        type: static
+    files:
+      - location: challenges/static/web/dashboard.html
+
+  - name: "Web explorer 3"
+    category: Web
+    description: |
+      **Web Hidden Styles**
+      A hunt through design itself, where appearances deceive and the right classes quietly assemble the message.
+    value: 200
+    type: standard
+    state: visible
+    max_attempts: 0
+    flags:
+      - flag: "HYVE_CTF{css_classes_can_hide_secrets}"
+        type: static
+    files:
+      - location: challenges/static/web/style_hunt.html
+
+  - name: "Binary Trouble"
+    category: Misc
+    description: |
+      Access Granted. System unlocking...
+
+      I wonder which penguin does this object support!
+    value: 300
+    type: standard
+    state: visible
+    max_attempts: 0
+    flags:
+      - flag: "HYVE_CTF{binary_execution_flow_mastered}"
+        type: static
+    files:
+      - location: challenges/static/misc/mystery
+      - location: challenges/static/misc/config.dat
+
+  - name: "Multi-Stage Signal"
+    category: Misc
+    description: |
+      A distress signal has been fragmented across multiple secure nodes. Your mission is to recover all fragments and reassemble the signal to find the flag.
+    value: 300
+    type: standard
+    state: visible
+    max_attempts: 0
+    flags:
+      - flag: "HYVE_CTF{s1gn4l_trac3d_th3_n3tw0rk_p4th}"
+        type: static
+    files:
+      - location: challenges/static/misc/site.zip
 
 

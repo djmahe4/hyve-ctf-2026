@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Style Hunt</title>
+    <style>
+        body {
+            font-family: monospace;
+            line-height: 1.5;
+            color: #333;
+        }
+
+        .content {
+            margin: 20px;
+        }
+
+        .noise {
+            color: #888;
+        }
+
+        .void {
+            display: none;
+        }
+
+        .secret {
+            color: #f4b23a;
+            font-weight: bold;
+            position: absolute;
+            left: -9999px;
+        }
+
+        /* Wait, that's too obvious. Let's make it harder. */
+
+        .c1 {
+            visibility: hidden;
+        }
+
+        .c2 {
+            font-size: 0;
+        }
+
+        .c3 {
+            opacity: 0;
+        }
+
+        /* The real flag characters have one specific class: 'found' */
+        .found {
+            color: white;
+            background: white;
+            user-select: none;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>The Wall of Text</h1>
+    <div class="content">
+        <p>
+            Lorem ipsum dolor sit amet. <span class="found">H</span><span class="found">Y</span><span class="found">V</span><span class="found">E</span><span class="found">_</span><span class="found">C</span>onsectetur adipiscing elit.
+            Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+            <span class="found">T</span>Ut enim ad minim veniam.
+            <span class="found">F</span>Quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+            consequat.
+            <span class="found">{</span>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
+            fugiat nulla pariatur.
+            <span class="found">c</span>Excepteur sint occaecat cupidatat non proident.
+            <span class="found">s</span>Sunt in culpa qui officia deserunt mollit anim id est laborum.
+            <span class="found">s</span>Curabitur pretium tincidunt lacus.
+            <span class="found">_</span>Nulla gravida orci a odio.
+            <span class="found">c</span>Nullam varius, turpis et commodo pharetra, est eros bibendum elit, nec luctus
+            magna felis sollicitudin mauris.
+            <span class="found">l</span>Integer in mauris eu nibh euismod gravida.
+            <span class="found">a</span>Duis ac tellus et risus vulputate vehicula.
+            <span class="found">s</span>Donec lobortis risus a elit.
+            <span class="found">s</span>Etiam tempor.
+            <span class="found">e</span>Ut ullamcorper, ligula eu tempor congue, eros est euismod turpis, id tincidunt
+            sapien risus a quam.
+            <span class="found">s</span>Maecenas fermentum consequat mi.
+            <span class="found">_</span>Donec fermentum.
+            <span class="found">c</span>Pellentesque malesuada nulla a mi.
+            <span class="found">a</span>Duis sapien sem, aliquet nec, commodo eget, consequat quis, neque.
+            <span class="found">n</span>Aliquam faucibus, elit ut dictum aliquet, felis nisl adipiscing sapien, sed
+            malesuada diam lacus eget erat.
+            <span class="found">_</span>Cras mollis scelerisque nunc.
+            <span class="found">h</span>Nulla suscipit ligula in lacus.
+            <span class="found">i</span>Curabitur sodales ligula in libero.
+            <span class="found">d</span>Sed dignissim lacinia nunc.
+            <span class="found">e</span>Curabitur tortor.
+            <span class="found">_</span>Pellentesque nibh.
+            <span class="found">s</span>Aenean quam.
+            <span class="found">e</span>In scelerisque sem at dolor.
+            <span class="found">c</span>Maecenas mattis.
+            <span class="found">r</span>Sed convallis tristique sem.
+            <span class="found">e</span>Proin ut ligula vel nunc egestas porttitor.
+            <span class="found">t</span>Morbi lectus risus, iaculis vel, suscipit quis, luctus non, massa.
+            <span class="found">s</span>Fusce ac turpis quis ligula lacinia aliquet.
+            <span class="found">}</span>Mauris ipsum.
+        </p>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Part 1: SFlWRV9DVEZ7aHRtbF8= -->
+    <meta name="debug-id" content="YmxpbmRfc3BvdHM=">
+    <title>Admin Dashboard (Draft)</title>
+    <style>
+        .hidden { display: none; }
+        .widget { border: 1px solid #ccc; padding: 10px; margin: 10px; }
+    </style>
+</head>
+<body>
+    <h1>System Dashboard</h1>
+    <div class="widget" id="user-stats">
+        <h2>User Statistics</h2>
+        <p>Active Users: 142</p>
+    </div>
+    
+    <div class="widget" id="server-load" data-config="X3tyZXZlYWxfdHJ1dGh9">
+        <h2>Server Load</h2>
+        <p>CPU: 45%</p>
+        <!-- TODO: remove debug var before prod: _re -->
+    </div>
+
+    <script>
+        console.log("Dashboard loaded.");
+        // Internal note: Merge the following to get the full key:
+        // 1. Meta 'debug-id' (Base64)
+        // 2. Data from 'server-load' data-config (Base64)
+        // Flag format is CTF{...} so you might need to combine decoded parts.
+        
+        // Wait, I think I messed up the split. 
+        // Part 1 is in the META string 'debug-id' -> 'blind_spots'
+        // Part 2 is in the data-config -> '{reveal_truth}'
+        // Part 3... where did I put Part 3?
+        // Ah, the prefix 'HYVE_CTF{html_' is missing. 
+        // Let's hide it in a comment in the head.
+    </script>
+</body>
+</html>

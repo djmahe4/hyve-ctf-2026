@@ -11,7 +11,7 @@ if [ -f "cat.jpeg" ]; then
     echo " Using local cat.jpeg"
 else
     echo "Downloading cat image..."
-    wget -q -O cat.jpeg "https://images.pexels.com/photos/1170986/pexels-photo-1170986.jpeg?auto=compress&cs=tinysrgb&w=800"
+    wget -q -U "Mozilla/5.0" -O cat.jpeg "https://images.pexels.com/photos/1170986/pexels-photo-1170986.jpeg?auto=compress&cs=tinysrgb&w=800"
 fi
 
 # Determine Team ID

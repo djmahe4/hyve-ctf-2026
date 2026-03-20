@@ -1,18 +1,19 @@
 # Hyve CTF 2026
 
-A 3-hour Capture The Flag (CTF) competition featuring 21 challenges across multiple security domains.
+A 3-hour Capture The Flag (CTF) competition featuring 19 challenges across multiple security domains.
 
 ## Description
 
-Hyve CTF 2026 is a beginner to intermediate level CTF competition designed to test skills in OSINT, steganography, cryptography, web exploitation, and network analysis. The competition runs for 3 hours and includes 21 challenges with a total of 1950+ points available.
+Hyve CTF 2026 is a beginner to intermediate level CTF competition designed to test skills in OSINT, steganography, cryptography, web exploitation, and network analysis. The competition runs for 3 hours and includes 19 challenges with a total of 1950+ points available.
 
 ## Challenge Categories
 
 - **OSINT** (3 challenges) - Open Source Intelligence gathering
 - **Steganography** (1 challenge) - Hidden message discovery
-- **Cryptography** (2 challenges) - Classical and modern encryption
-- **Web** (5 challenges) - Web application vulnerabilities
+- **Cryptography** (3 challenges) - Classical and modern encryption
+- **Web** (8 challenges) - Web application vulnerabilities
 - **Network** (1 challenge) - Packet analysis and forensics
+- **Misc** (3 challenges) - Scripting, basic reversing, and miscellaneous puzzles
 
 ## Quick Start
 
@@ -23,18 +24,18 @@ Hyve CTF 2026 is a beginner to intermediate level CTF competition designed to te
    ```
 
 2. **Automated Setup**:
-(a) For local deployment (10 challenges)
+   To deploy the complete set of 19 challenges locally:
    ```bash
    python setup_ctf.py --skip-users
    ```
-(b) For full deployment (21 challenges)
-   **[Refer to deployment.md](docs/DEPLOYMENT.md#alternative-deployment)**
+
+   *(Note: Alternatively, you can use the CTFd UI to import the backup zip via Config -> Backup -> Import).*
 
 ## Documentation
 
 - **[Installation & Deployment](docs/DEPLOYMENT.md)** - Complete setup guide from installation to production.
 - **[System Logic & Integrations](docs/LOGIC.md)** - API flows, dynamic flags, and architecture details.
-- **[Challenge Writeups](docs/WRITEUPS.md)** - Solutions for all 21 challenges.
+- **[Challenge Writeups](docs/WRITEUPS.md)** - Solutions for all 19 challenges.
 
 ## Project Structure
 

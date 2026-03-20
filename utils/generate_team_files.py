@@ -172,11 +172,29 @@ def generate_files(output_dir):
         if local_cat.resolve() != cover_image.resolve():
             shutil.copy2(local_cat, cover_image)
         cat_ready = True
-    elif shutil.which('convert'):
-        subprocess.run(['convert', '-size', '600x400', 'xc:grey', str(cover_image)]) 
-        cat_ready = True
     else:
-        print("    ! Skipping Stego image generation (neither local cat.jpeg nor ImageMagick found)")
+        try:
+            import requests
+            print("    > Downloading cat image from Pexels...")
+            resp = requests.get("https://images.pexels.com/photos/1170986/pexels-photo-1170986.jpeg?auto=compress&cs=tinysrgb&w=800", headers={'User-Agent': 'Mozilla/5.0'}, timeout=10)
+            if resp.status_code == 200:
+                with open(cover_image, 'wb') as f:
+                    f.write(resp.content)
+                # optionally save to local_cat to prevent re-downloading next time!
+                with open(local_cat, 'wb') as f:
+                    f.write(resp.content)
+                cat_ready = True
+            else:
+                print(f"    ✗ Download failed (HTTP {resp.status_code})")
+        except Exception as e:
+            print(f"    ✗ Download failed: {e}")
+            
+        if not cat_ready and shutil.which('convert'):
+            print("    > Falling back to ImageMagick grey image...")
+            subprocess.run(['convert', '-size', '600x400', 'xc:grey', str(cover_image)]) 
+            cat_ready = True
+        elif not cat_ready:
+            print("    ! Skipping Stego image generation (download failed and ImageMagick not found)")
     
     password = "2026ftc"
     if cat_ready and shutil.which('steghide'):

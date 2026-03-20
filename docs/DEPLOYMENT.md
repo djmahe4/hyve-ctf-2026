@@ -58,13 +58,14 @@ If you want to reset challenges or configuration without recreating all 20+ team
 - ✅ **Teams**: 20 participant teams + 1 admin test team ( Removed in latest edition)
 - ✅ **Files**: Static assets uploaded to CTFd
 
-#### Alternative deployment
+#### Alternative Deployment (CTFd Backup Import)
 
-Go to releases tab and download the latest zip file.
-- Step 1: Run `docker pull ctfd`
-- Step 2: Open the url in browser
-- Step 3: Navigate to `Admin Panel -> Config -> Backup -> Import page`
-- Step 4: Upload the zip file there.
+If you prefer not to use the automated `setup.sh` or `setup_ctf.py` pipeline (which builds all 19 challenges programmatically), you can directly import a pre-packaged CTFd backup zip.
+
+- Step 1: Start the services (`cd ctfd && docker-compose up -d`)
+- Step 2: Open `http://localhost:8001` in your browser and complete the initial guided setup.
+- Step 3: Navigate to `Admin Panel -> Config -> Backup -> Import`.
+- Step 4: Upload the pre-packaged backup zip file.
 
 ---
 

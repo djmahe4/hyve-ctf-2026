@@ -387,7 +387,7 @@ Complete solutions for all 19 challenges in Hyve CTF 2026.
 1. You are given an `inventory.xml` file.
 2. The comment says: "Concatenate their 'id' attributes to retrieve the recovery key" for items with `status="critical"`.
 3. Extract all `<item>` elements with `status="critical"` in order.
-4. The extracted `id` attributes are: `C`, `TF`, `{x`, `ml_`, `pa`, `rs`, `in`, `g_`, `is`, `_t`, `ed`, `io`, `us`, `_b`, `ut`, `_n`, `3c`, `3s`, `s`, `ar`, `y}`.
+4. The extracted `id` attributes are: `HYVE_C`, `TF`, `{x`, `ml_`, `pa`, `rs`, `in`, `g_`, `is`, `_t`, `ed`, `io`, `us`, `_b`, `ut`, `_n`, `3c`, `3s`, `s`, `ar`, `y}`.
 5. Concatenate them: `HYVE_CTF{xml_parsing_is_tedious_but_n3c3ssary}`.
 
 **Flag**: `HYVE_CTF{xml_parsing_is_tedious_but_n3c3ssary}`

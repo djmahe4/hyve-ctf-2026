@@ -65,6 +65,6 @@ Created for Hyve CTF 2026 competition.
 
 ## Contributors 
 
-- **@abhiramqcos - Abhiram G Nair**
-- **@djmahe4 - Maheshwar Anup**
+- **[@abhiramqcos](https://github.com/abhiramqcos) - Abhiram G Nair**
+- **[@djmahe4](https://github.com/djmahe4) - Maheshwar Anup**
 

@@ -62,3 +62,9 @@ For issues, questions, or contributions, please open an issue on GitHub.
 ## Credits
 
 Created for Hyve CTF 2026 competition.
+
+## Contributors 
+
+- **@abhiramqcos - Abhiram G Nair**
+- **@djmahe4 - Maheshwar Anup**
+
